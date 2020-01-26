@@ -20,4 +20,6 @@ rt.bisection(func,-11,-4, 0.00000000000001, numiter = True)
 
 
 
-rt.Newton(func, dfunc, -1, 0.00000000000001, verbose = True, numiter = True)
+rt.Newton(func, dfunc, 1, 0.00000000000001, verbose = True, numiter = True)
+
+rt.secant(func, -2, -1, verbose = True, numiter = True)

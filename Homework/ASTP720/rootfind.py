@@ -9,7 +9,7 @@ Created on Thu Jan 23 14:20:36 2020
 def bisection(function, a, b, threshold = 0.00000001, verbose = False, numiter = False):
     '''
     Simple bisection method for determining roots of a function. The variables a and b represent a lower bound and upper bound
-    for the range in which one root is expected to fall. 
+    for the range in which one root is expected to fall. The must be only one root in the given range.
     
     INPUTS:
         function: the function for which to find the roots.
@@ -104,7 +104,7 @@ def bisection(function, a, b, threshold = 0.00000001, verbose = False, numiter =
     
 def Newton(function, dfunction, x, threshold = 0.00000000000001, verbose = False, numiter = False):
     '''
-    Newton's method for finding the nearest root of a given function and its derivative.
+    Newton's method for finding the nearest root of a given function and its derivative. 
     
     Input
         function: the function for which to find a root
@@ -118,30 +118,66 @@ def Newton(function, dfunction, x, threshold = 0.00000000000001, verbose = False
         The nearest root of the given function.
     '''
     
-    x_1 = x - function(x)/dfunction(x)
-    count = 0
+    x_1 = x - function(x)/dfunction(x) # calculating new coordinate closer to the root
+    count = 0                          # Priming the count for number of iterations
     
-    while abs(function(x_1)) > threshold:
+    while abs(function(x_1)) > threshold: # condition for iteration, while the function evaluates to greater than threshold
         
         count = count + 1
         
-        x_1 = float(x_1) - function(float(x_1))/dfunction(float(x_1))
+        x_1 = float(x_1) - function(float(x_1))/dfunction(float(x_1)) # calculating new coordinate each iteration 
         
-        if verbose == True:
+        if verbose == True:                     #Prints the new coordinate each iteration if verbose is True
             print(f" Pos {count} = {x_1}")
         
-        if function(x_1) < threshold:
+        # Exit condition for when the function at the new 
+        #coordinate evaluates to less than the threshold
+        if abs(function(x_1)) < threshold:  
             
-            if numiter == True:
+            if numiter == True:             # print the number of iterations
                 print(f"NumIter = {count}")
                 
             return(x_1)
 
     
     
-def secant():
+def secant(function, x_0, x_1, threshold = 0.00000000000001, verbose = False, numiter = False):
     '''
+    Secant method for finding nearest root to given coordinates. The must be only one root in the given range.
+    
+    Input:
+        function: the function for which to find the nearest root.
+        x_0: the first coordinate near the desired root.
+        x_1: the second coordinate near the desired root.
+        threshold: The allowed uncertainty on the final answer for the root
+        verbose: An option to print out the values for x_0, x_1, and x_2 for each iteration
+        numiter: An option to print out the number iterations taken by the function.
+        
+    Output: 
+        The root nearest to the given guesses
     '''
-   
+    
+    x_2 = x_1 - function(x_1)*((x_1 - x_0)/(function(x_1) - function(x_0))) # equation to find new coordinate
+    
+    count = 0   # Primer for counting the iterations
+    
+    while abs(function(x_2)) > threshold: # condition for looping while the function evaluated at x_2 is greater than threshold
+        
+        count = count + 1 # counting the iterations
+        
+        x_0 = float(x_1)    # replacing previous values with those from the last iteration
+        x_1 = float(x_2)
+        
+        x_2 =  x_1 - function(x_1)*((x_1 - x_0)/(function(x_1) - function(x_0))) # calculating new x_2 with new X_0 and x_1
+        
+        if verbose == True:
+            print(f" Pos {count} = x_0 = {x_0}, x_1 = {x_1}, x_2 = {x_2}")
+        
+        if abs(function(x_2)) < threshold:
+            
+            if numiter == True:
+                print(f"NumIter = {count}")
+                
+            return(x_2)
     
     
