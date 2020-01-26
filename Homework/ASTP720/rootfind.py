@@ -102,13 +102,46 @@ def bisection(function, a, b, threshold = 0.00000001, verbose = False, numiter =
     
     
     
-#def Newton():
-#    #not putting anything here yet
-#    
-#
-#    
-#    
-#def secant():
-#    nothing his here yet
-#    
-#    
+def Newton(function, dfunction, x, threshold = 0.00000000000001, verbose = False, numiter = False):
+    '''
+    Newton's method for finding the nearest root of a given function and its derivative.
+    
+    Input
+        function: the function for which to find a root
+        dfunction: the previous function's derivative
+        x: An initial guess for a point near the desired root
+        threshold: The amount of acceptable error for finding the root
+        verbose: Prints the new position guess for each iteration if True.
+        numiter: Prints the number of iterations if True.
+        
+    Output: 
+        The nearest root of the given function.
+    '''
+    
+    x_1 = x - function(x)/dfunction(x)
+    count = 0
+    
+    while abs(function(x_1)) > threshold:
+        
+        count = count + 1
+        
+        x_1 = float(x_1) - function(float(x_1))/dfunction(float(x_1))
+        
+        if verbose == True:
+            print(f" Pos {count} = {x_1}")
+        
+        if function(x_1) < threshold:
+            
+            if numiter == True:
+                print(f"NumIter = {count}")
+                
+            return(x_1)
+
+    
+    
+def secant():
+    '''
+    '''
+   
+    
+    
