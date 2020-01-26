@@ -6,7 +6,7 @@ Created on Thu Jan 23 14:20:36 2020
 @author: ryan
 """
 
-def bisection(function, a, b, threshold = 0.00000001, verbose = False):
+def bisection(function, a, b, threshold = 0.00000001, verbose = False, numiter = False):
     '''
     Simple bisection method for determining roots of a function. The variables a and b represent a lower bound and upper bound
     for the range in which one root is expected to fall. 
@@ -17,12 +17,15 @@ def bisection(function, a, b, threshold = 0.00000001, verbose = False):
         b: one of the guesses for lower of upper bound.
         threshold: defines the range plus or minus zero that c and fall in to be considered the root. defaults to 0.00000001 unless specified
         verbose: If True, this option will print out the values for a, b, and c for each iteration.
+        numiter: If True, this option will return the number of iterations needed for convergence.
     
     OUTPUT:
         The root of a function, within a specified uncertainy, inside a given range. 
     
     '''
     c = (a+b)/2     # Calculates midpoint between guesses
+    
+    count = 0   # used for counting iterations
 
     if function(c) == 0:    # Checks to see if you made a lucky guess of bounds
         return(c)
@@ -37,6 +40,8 @@ def bisection(function, a, b, threshold = 0.00000001, verbose = False):
         if function(a) < 0 and function(b) > 0: 
             
             while function(a) < 0 and function(b) > 0:
+                
+                count = count + 1
                 
                 if function(a)*function(c) < 0:     # Checks if a * c is negative, if so a new upper bound b is chosen 
                     b = float(c)
@@ -56,12 +61,16 @@ def bisection(function, a, b, threshold = 0.00000001, verbose = False):
                         print((f"lower = {format(a,'.6f')}, upper = {format(b,'.6f')}, mid = {format(c,'.6f')}"))
                         
                 if abs(function(c)) < threshold:    # Exit condition for when the function converges to a value less than the error threshold
+                    if numiter == True:
+                        print(f"NumIter = {count}")
                     return(c)
                         
         # condition for when func(a) is positive and func(b) is negative
         elif function(a) > 0 and function(b) < 0:
                 
-            while function(a) > 0 and function(b) < 0: # revers condition from above while loop
+            while function(a) > 0 and function(b) < 0: # reverse condition from above while loop
+                
+                count = count + 1
                 
                 if function(a)*function(c) < 0:    
                     b = float(c)
@@ -80,7 +89,10 @@ def bisection(function, a, b, threshold = 0.00000001, verbose = False):
                         print((f"lower = {format(a,'.6f')}, upper = {format(b,'.6f')}, mid = {format(c,'.6f')}"))
                 
                 if abs(function(c)) < threshold:    # Exit condition for when the function converges to a value less than the error threshold
+                    if numiter == True:
+                        print(f"NumIter = {count}")
                     return(c)
+                    
                     
     
     

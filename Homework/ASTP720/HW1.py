@@ -13,4 +13,4 @@ def func(x):
     return(x**2 - 45)
 
 
-rt.bisection(func,-11,-4, 0.00000000001, verbose = True)
+rt.bisection(func,-11,-4, 0.00000000000001, numiter = True)
