@@ -45,11 +45,11 @@ def bisection(function, a, b, threshold = 0.00000001, verbose = False, numiter =
                 
                 # If verbose = True, prints values for each iteration
                     
-            elif function(b)*function(c) < 0:   # Checks if B * c is negative, if so a new lower bound a is chosen
+            elif function(b)*function(c) < 0:   # Checks if b * c is negative, if so a new lower bound a is chosen
                 a = float(c)
                 c = (a+b)/2
                 
-                # If verbose = True, prints values for each iteration
+            
             if verbose == True:
                 print((f"lower = {format(a,'.10f')}, upper = {format(b,'.10f')}, mid = {format(c,'.10f')}"))
                     
