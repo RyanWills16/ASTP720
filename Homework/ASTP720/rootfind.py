@@ -23,7 +23,7 @@ def bisection(function, a, b, threshold = 0.00000001, verbose = False, numiter =
         The root of a function, within a specified uncertainy, inside a given range. 
     
     '''
-    c = (a+b)/2     # Calculates midpoint between guesses
+    c = (a+b)/2     # Calculates midpoint between guesses as primer for function
     
     count = 0   # used for counting iterations
 
@@ -35,71 +35,30 @@ def bisection(function, a, b, threshold = 0.00000001, verbose = False, numiter =
         
     elif function(a) * function(b) < 0: # if none of the previous conditions are met, proceeds to looped calculations
         
-        # added condition to account for any situation in which func(a) is positive and func(b) negative 
-        # or func(b) is positive and func(a) is negative. Might help for retrieving negative roots
-        if function(a) < 0 and function(b) > 0: 
+        while abs(function(c)) > threshold:
             
-            while function(a) < 0 and function(b) > 0:
+            count = count + 1   # adds one to count in each iteration
                 
-                count = count + 1
+            if function(a)*function(c) < 0:     # Checks if a * c is negative, if so a new upper bound b is chosen 
+                b = float(c)
+                c = (a + b)/2                   # Calculates new midpoint with new upper bound b
                 
-                if function(a)*function(c) < 0:     # Checks if a * c is negative, if so a new upper bound b is chosen 
-                    b = float(c)
-                    c = (a + b)/2                   # Calculates new midpoint with new upper bound b
+                # If verbose = True, prints values for each iteration
                     
-                    # If verbose = True, prints values for each iteration
-                    if verbose == True:
-                        print('a * b < 0')
-                        print((f"lower = {format(a,'.6f')}, upper = {format(b,'.6f')}, mid = {format(c,'.6f')}")) 
-                        
-                elif function(b)*function(c) < 0:   # Checks if B * c is negative, if so a new lower bound a is chosen
-                    a = float(c)
-                    c = (a+b)/2
-                    
-                    # If verbose = True, prints values for each iteration
-                    if verbose == True:
-                        print((f"lower = {format(a,'.6f')}, upper = {format(b,'.6f')}, mid = {format(c,'.6f')}"))
-                        
-                if abs(function(c)) < threshold:    # Exit condition for when the function converges to a value less than the error threshold
-                    if numiter == True:
-                        print(f"NumIter = {count}")
-                    return(c)
-                        
-        # condition for when func(a) is positive and func(b) is negative
-        elif function(a) > 0 and function(b) < 0:
+            elif function(b)*function(c) < 0:   # Checks if B * c is negative, if so a new lower bound a is chosen
+                a = float(c)
+                c = (a+b)/2
                 
-            while function(a) > 0 and function(b) < 0: # reverse condition from above while loop
-                
-                count = count + 1
-                
-                if function(a)*function(c) < 0:    
-                    b = float(c)
-                    c = (a + b)/2                   
-    
-                    if verbose == True:
-                        print('a * b < 0')
-                        print((f"lower = {format(a,'.6f')}, upper = {format(b,'.6f')}, mid = {format(c,'.6f')}")) 
-                        
-                elif function(b)*function(c) < 0:   
-                    a = float(c)
-                    c = (a+b)/2
+                # If verbose = True, prints values for each iteration
+            if verbose == True:
+                print((f"lower = {format(a,'.10f')}, upper = {format(b,'.10f')}, mid = {format(c,'.10f')}"))
                     
-                    
-                    if verbose == True:
-                        print((f"lower = {format(a,'.6f')}, upper = {format(b,'.6f')}, mid = {format(c,'.6f')}"))
-                
-                if abs(function(c)) < threshold:    # Exit condition for when the function converges to a value less than the error threshold
-                    if numiter == True:
-                        print(f"NumIter = {count}")
-                    return(c)
-                    
-                    
-    
-    
-    
-    
-    
-    
+            if abs(function(c)) < threshold:    # Exit condition for when the function converges to a value less than the error threshold
+                if numiter == True:
+                    print(f"NumIter = {count}")
+                return(c)
+        
+        
     
     
 def Newton(function, dfunction, x, threshold = 0.00000000000001, verbose = False, numiter = False):

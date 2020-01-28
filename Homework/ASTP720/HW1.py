@@ -16,7 +16,7 @@ def dfunc(x):
     return(2*x)
 
 
-rt.bisection(func,-11,-4, 0.00000000000001, numiter = True)
+rt.bisection(func,4,11, 0.0000000001, verbose = True, numiter = True)
 
 
 
