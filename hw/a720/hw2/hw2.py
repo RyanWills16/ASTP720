@@ -12,25 +12,38 @@ import numpy as np
 def func(x):
     return -x**2+5
 
-x = list(np.linspace(-4,4, 17))
+x = list(np.linspace(-4,4, 129))
 
-y_val = []
+y = []
 for i in x:
-    y = func(i)
-    y_val.append(y)
+    y_val = func(i)
+    y.append(y_val)
 
 
 # Integration Testing
-x2 = nd.midpoint(x,y_val)
+    
+# midpoint
+test1 = nd.midpoint(x,y)
 
-x2(-3.4,3.4) 
+test1(-3.5,3.5) 
 # takes more than 2049 points to get up to get 
 #5 decimals of precision, checked with integral calculator
-# requuires a good deal of precision to be accurate
+# requuires a good deal of resolution to be accurate
 
 
 # Trapezoid Rule
 
-x3 = nd.traprule(x,y)
+test2 = nd.traprule(x,y)
 
-x3(-3.5, 3.5)
+test2(-3.5, 3.5)
+
+# Simpson's Rule
+
+test3 = nd.simpson(x,y)
+
+test3(-3.5, 3.5)
+
+length = len(x)
+
+
+h = abs((3.5 + 3.5)/(length - 1))
