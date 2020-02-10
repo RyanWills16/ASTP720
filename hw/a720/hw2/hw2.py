@@ -43,7 +43,3 @@ test3 = nd.simpson(x,y)
 
 test3(-3.5, 3.5)
 
-length = len(x)
-
-
-h = abs((3.5 + 3.5)/(length - 1))
