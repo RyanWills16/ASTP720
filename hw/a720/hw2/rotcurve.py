@@ -19,14 +19,16 @@ def velfunc(x, c, v_200):
 def massfunc(r, velocity, G):
     return r*velocity**2/G
 
-G = 4.299e-6*u.kpc*u.km**2/u.solMass
+def densityfunc(ro_0,r_200,c )
+G = 4.299e-6*u.kpc/u.second**2*u.km**2/u.solMass
 c = 15
 v_200 = 200*u.km/u.second
-r_c = 250*u.kpc
+r_200 = 250*u.kpc
 
 
 x = np.linspace(0.0001,2,1000)
-radius = x*r_c
+radius = x*r_200
+y = np.linspace(5,995,199)
 
 
 velocity = velfunc(x, c, v_200)
@@ -42,6 +44,50 @@ plt.plot(radius, mass)
 plt.xlabel('radius')
 plt.ylabel('Mass enclosed (solar masses)')    
 
-def rotcurve(r_c, v_200, c, velfunc, massfunc):
-    for 
+def rotcurve(r_200,x, v_200, c, velfunc, savefig = False):
     
+    G = 4.299e-6*u.kpc*u.km**2/u.solMass
+    
+    for ind, i in enumerate(c): 
+        plt.figure()
+        
+        plt.xlabel('R (kpc)')
+        plt.ylabel('Mass (solar mass)')
+        for bind, j in enumerate(v_200):
+           radius = x*r_200
+           velocity = velfunc(x,i,j)
+           
+           plt.plot(radius, velocity, label = f'V_200 = {j}')
+           plt.title(f'c = {i}')
+           plt.legend()
+           if savefig == True:
+               plt.savefig(f'rotcurve_{ind}_{bind}.pdf')
+           
+def massenc(r_200,x, v_200, c, velfunc, massfunc, savefig = False):
+    G = 4.299e-6*u.kpc*u.km**2/u.solMass
+    
+    for ind, i in enumerate(c): 
+        plt.figure()
+        
+        plt.xlabel('R (kpc)')
+        plt.ylabel('Mass (solar mass)')
+        for bind, j in enumerate(v_200):
+           radius = x*r_200
+           velocity = velfunc(x,i,j)
+           mass = massfunc(radius, velocity, G)
+           
+           plt.plot(radius, mass, label = f'V_200 = {j}')
+           plt.title(f'c = {i}')
+           plt.legend()
+           if savefig == True:
+               plt.savefig(f'massenc_{ind}_{bind}.pdf')
+           
+    
+v_200 = [150,200,250,300]*u.km/u.second
+c = [0.5, 10, 50]
+r_200 = 200*u.kpc
+x = np.linspace(0.0001, 2, 1000)
+
+massenc(r_200, x, v_200, c, velfunc, massfunc)
+
+rotcurve(r_200, x, v_200, c, velfunc)

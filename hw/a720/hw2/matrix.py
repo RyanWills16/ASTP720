@@ -20,7 +20,10 @@ class matrix:
             valList = np.loadtxt(filename, delimiter = ',')
             
             for row in valList:
-                self.values[int(row[0])-1][int(row[1])-1] = float(row[2]) 
+                self.values[int(row[0])-1][int(row[1])-1] = float(row[2])
+                
+        
+            
         
     def __add__(self, matrixB):
         
@@ -76,35 +79,44 @@ class matrix:
                 
         return answer       
                 
-    def trace(self):
-        for r, row in enumerate(self.values):
-            for c,
+#    def trace(self):
+#        for r, row in enumerate(self.values):
+#            for c, col in enumerate(matrixB.transpose().values):
+
+
         
-        
+#file = 'A_coefficients.dat'
+## Testing add    
+#matrixa = matrix(9,9,filename = file)
+#matrixb = matrix(9,9, filename = file)
+#
+#ansa = matrixa+matrixb
+#
+#print(ansa.values)
+#
+## Testing Transpose
+#ansb = matrixa.transpose()
+#print(ansb.values)
+#
+## Testing multiplication
+#matrixc = matrix(1,3,filename = 'test1.dat')
+#matrixd = matrix(3,2, filename = 'test2.dat')
+#
+#mult = matrixa*matrixb
+#print(mult.values)
+#print(matrixa.values, matrixb.values)
+#
+#ans5 = matrixb.transpose()
+#print(ans5.values)
 
-        
-file = 'A_coefficients.dat'
-# Testing add    
-matrixa = matrix(9,9,filename = file)
-matrixb = matrix(10,9, filename = file)
+matrixE = matrix(3,3, filename = 'test3.dat')
 
-ansa = matrixa+matrixb
+ansE = matrixE.luDecomp()
+print(ansE)
 
-print(ans.values)
-
-# Testing Transpose
-ansb = matrixa.transpose()
-print(ans2.values)
-
-# Testing multiplication
-matrixc = matrix(1,3,filename = 'test1.dat')
-matrixd = matrix(3,2, filename = 'test2.dat')
-
-mult = matrix1*matrix2
-print(mult.values)
-print(matrix1.values, matrix2.values)
-
-ans5 = matrix2.transpose()
-print(ans5.values)
+n = 3
 
 
+
+for i in range(9):
+    print(i)
