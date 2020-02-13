@@ -19,34 +19,9 @@ def velfunc(x, c, v_200):
 def massfunc(r, velocity, G):
     return r*velocity**2/G
 
-def densityfunc(ro_0,r_200,c )
 G = 4.299e-6*u.kpc/u.second**2*u.km**2/u.solMass
-c = 15
-v_200 = 200*u.km/u.second
-r_200 = 250*u.kpc
-
-
-x = np.linspace(0.0001,2,1000)
-radius = x*r_200
-y = np.linspace(5,995,199)
-
-
-velocity = velfunc(x, c, v_200)
-mass = massfunc(radius, velocity, G)
-
-plt.figure()
-plt.plot(radius, velocity)
-plt.xlabel('r')
-plt.ylabel('velocity (km/s)')
-                
-plt.figure()
-plt.plot(radius, mass)
-plt.xlabel('radius')
-plt.ylabel('Mass enclosed (solar masses)')    
 
 def rotcurve(r_200,x, v_200, c, velfunc, savefig = False):
-    
-    G = 4.299e-6*u.kpc*u.km**2/u.solMass
     
     for ind, i in enumerate(c): 
         plt.figure()
@@ -67,10 +42,10 @@ def massenc(r_200,x, v_200, c, velfunc, massfunc, savefig = False):
     G = 4.299e-6*u.kpc*u.km**2/u.solMass
     
     for ind, i in enumerate(c): 
-        plt.figure()
-        
+        plt.figure(f'{i}')
         plt.xlabel('R (kpc)')
         plt.ylabel('Mass (solar mass)')
+        
         for bind, j in enumerate(v_200):
            radius = x*r_200
            velocity = velfunc(x,i,j)
@@ -79,12 +54,32 @@ def massenc(r_200,x, v_200, c, velfunc, massfunc, savefig = False):
            plt.plot(radius, mass, label = f'V_200 = {j}')
            plt.title(f'c = {i}')
            plt.legend()
+           
+           m_r = []
+           radius2 = []
+           
+           for ind, mass_enc in enumerate(mass):
+              
+               if ind > 0:
+                   m = (mass[ind]-mass[ind -1])/(u.solMass)
+                   m_r.append(m)
+                   r = ((radius[ind]+radius[ind])/2)/(u.kpc)
+                   radius2.append(r)
+                   
+           plt.figure()
+           plt.xlabel('R (kpc)')
+           plt.ylabel('M(r) (solar mass)')
+           plt.plot(radius2, m_r/s, label = f'V_200 = {j}')
+           plt.title(f'c = {i}')
+           plt.legend()
+           
            if savefig == True:
                plt.savefig(f'massenc_{ind}_{bind}.pdf')
-           
-    
+        return(m_r, radius2)
+
+
 v_200 = [150,200,250,300]*u.km/u.second
-c = [0.5, 10, 50]
+c = [5, 20]
 r_200 = 200*u.kpc
 x = np.linspace(0.0001, 2, 1000)
 
