@@ -39,7 +39,7 @@ def rotcurve(r_200,x, v_200, c, velfunc, savefig = False):
         
         plt.figure()
         plt.xlabel('R (kpc)')
-        plt.ylabel('Mass (solar mass)')
+        plt.ylabel('Circular Velocity (km/s)')
         
         for bind, j in enumerate(v_200):
            radius = x*r_200 # calculate radii from parameter x and r_200
@@ -130,7 +130,7 @@ def mass_grad(r_200,x, v_200, c, velfunc, massfunc, savefig = False):
     for ind, i in enumerate(c):
         plt.figure()
         plt.xlabel('R (kpc)')
-        plt.ylabel('M(r)')
+        plt.ylabel('dM(r)/dr')
 
         for bind, j in enumerate(v_200):
 
@@ -153,14 +153,14 @@ def mass_grad(r_200,x, v_200, c, velfunc, massfunc, savefig = False):
                     radius2.append(r)
                     
             dM_r = []   # empty list for derivative of mass dist
-            radius3 = []
+            radius3 = []    # empty list for radii
             
             # iterate over values in radius2
             for ind, k in enumerate(radius2):
                 
-                # condition so we don't use the first point
+                # condition so we don't use the first or last point
                 if radius2[0] < k < radius2[-1]:
-                    y = nm.numdiv(radius2,mass2, k)
+                    y = nm.numdiv(radius2,mass2, k) # calculating derivative
                     radius3.append(k)
                     dM_r.append(y)
                     
@@ -188,4 +188,4 @@ calc_mass(r_200, x, v_200, c, velfunc, massfunc, savefig = True)
 rotcurve(r_200, x, v_200, c, velfunc, savefig = True)
 
 # creating plot of mass gradient
-mass_grad(r_200, x, v_200, c, velfunc, massfunc, savefig = True)
+#mass_grad(r_200, x, v_200, c, velfunc, massfunc, savefig = True)
