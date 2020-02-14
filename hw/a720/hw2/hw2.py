@@ -19,6 +19,13 @@ for i in x:
     y_val = func(i)
     y.append(y_val)
 
+# testing numerical derivative
+y_prime = []
+for ind, i in enumerate(x):
+    if ind > 0:
+        y_new = divtest = nd.numdiv(x,y, i)
+        y_prime.append(y_new)
+
 
 # Integration Testing
     
