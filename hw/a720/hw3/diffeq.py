@@ -24,15 +24,17 @@ def euler(func, initial, time, step = None):
     
     for ind, t in enumerate(time):
         if ind > 0:
-            y_prime_new = y_prime[ind-1] + h*func(time[ind-1],f[ind-1],y_prime[ind-1])
-            
-            y_new = f[ind-1] + h*y_prime_new
+            y_prime_new = y_prime[ind-1] + h*func(time[ind-1],f[ind-1],y_prime[ind-1])[1]
             
             y_prime.append(y_prime_new)
+            
+            y_new = f[ind-1] + h*func(time[ind-1],f[ind-1],y_prime[ind])[0]
+            
+            
             f.append(y_new)
     return f,y_prime, time
 
-def heun(func, initial, time):
+def heun(func, initial, time, step = None):
     
     if not step == None:
         import numpy as np
@@ -50,18 +52,17 @@ def heun(func, initial, time):
     for ind, t in enumerate(time):
         if ind > 0:
             
-            step = h*func(time[ind-1],f[ind-1],y_prime[ind-1])
-            yp1 = y_prime[ind-1] + step
-            print('yp1 = ',yp1)
+            f_dzdt = func(time[ind -1], f[ind-1], y_prime[ind-1])[1]
+            f_z = func(time[ind-1], f[ind-1],  y_prime[ind-1])[0]
             
-            step2 = 0.5*h*(func(time[ind-1],f[ind-1],y_prime[ind-1]) + func(t,f[ind-1],yp1))
-            yp2 = y_prime[ind-1] + step2
-            print('yp2 = ', yp2)
+            f_dzdt2 = func(t, f[ind-1] + f_z*h, y_prime[ind-1]+f_dzdt*h)[1]
+            f_z2 = func(t,f[ind-1] + f_z*h,y_prime[ind-1]+f_dzdt*h)[0]
             
-            y1 = f[ind-1] + h*yp1
-            print('y1 = ', y1)
-            y2 = f[ind-1] + 0.5*h*(y1 + yp2)
-            print('y2 = ', y2)
-            y_prime.append(yp1)
-            f.append(y1)
-    return f,y_prime
+            dzdt = y_prime[ind-1] + 0.5*h*(f_dzdt + f_dzdt2)
+            z = f[ind -1] + 0.5*h*(f_z + f_z2)
+            
+            y_prime.append(dzdt)
+            f.append(z)
+            
+            
+    return f,y_prime, time
