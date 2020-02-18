@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import diffeq as df
 from scipy.integrate import odeint
 
-def examplepend(t,y,b=0.25,c=5.0):
+def examplepend(y,t,b,c):
     theta, omega = y 
     dydt = [omega,-b*omega - c*np.sin(theta)]
     return dydt
@@ -32,40 +32,49 @@ t = np.linspace(0,10,101)
 sol1 = odeint(examplepend, y0, t, args = (b,c))
 
 # Testing Euler method
-theta1, omega1, time = df.euler(pend, y0,t, step = 0.01)    
-
-error_theta1 = sol1[:,0] - theta1 # comparing two methods by finding difference
-error_omega1 = sol1[:,1] - omega1
+theta1, omega1, time = df.euler(pend, y0,t)    
+r1_theta = np.corrcoef(sol1[:,0], theta1)[0,1]
+r1_omega = np.corrcoef(sol1[:,1], omega1)[0,1]
 
 plt.figure()
-plt.plot(time,theta1, label = 'Theta Difference')
-plt.plot(time,omega1, label = 'Omega Difference')
-plt.plot(t, error_theta1, label = 'Theta Difference')
-plt.plot(t,error_omega1, label = 'Omega Difference')
+plt.title('Euler Method')
+plt.plot(time,theta1, label = 'Theta')
+plt.plot([],[], label = f"R^2 = {format(r1_theta,'.5')}")
+plt.plot(time,omega1,'--', label = 'Omega')
+plt.plot([],[], label = f"R^2 = {format(r1_omega,'.5')}")
 plt.legend()
 
 # Testing Heun's Method
-theta2, omega2, time2 = df.heun(mypend, y0, t)
-
-error_theta2 = sol1[:,0] - theta2 # comparing two methods by finding difference
-error_omega2 = sol1[:,1] - omega2
+theta2, omega2, time2 = df.heun(pend, y0, t)
+r2_theta = np.corrcoef(sol1[:,0], theta2)[0,1]
+r2_omega = np.corrcoef(sol1[:,1], omega2)[0,1]
 
 plt.figure()
+plt.title('Huen Method (rk2)')
 plt.plot(t, theta2, label = 'Theta')
-plt.plot(t, omega2, label = 'Omega')
-plt.plot(t, error_theta2, label = 'eTheta')
-plt.plot(t, error_omega2, label = 'eOmega')
+plt.plot([],[], label = f"R^2 = {format(r2_theta,'.5')}")
+plt.plot(t, omega2,'--', label = 'Omega')
+plt.plot([],[], label = f"R^2 = {format(r2_omega,'.5')}")
 plt.legend()
 
-# Testing rk4 method
-theta3, omega3, time3 = df.rk4(mypend, y0, t)
-
-error_theta3 = sol1[:,0] - theta3 # comparing two methods by finding difference
-error_omega3 = sol1[:,1] - omega3
+# Testing RK4 method
+theta3, omega3, time3 = df.rk4(pend, y0, t)
+r3_theta = np.corrcoef(sol1[:,0], theta3)[0,1]
+r3_omega = np.corrcoef(sol1[:,1], omega3)[0,1]
 
 plt.figure()
+plt.title('RK4 method')
 plt.plot(t, theta3, label = 'Theta')
-plt.plot(t, omega3, label = 'Omega')
-plt.plot(t, sol1[:,0], label = 'eTheta')
-plt.plot(t, sol1[:,1], label = 'eOmega')
+plt.plot([],[], label = f"R^2 = {format(r3_theta,'.5')}")
+plt.plot(t, omega3, '--', label = 'Omega')
+plt.plot([],[], label = f"R^2 = {format(r3_omega,'.5')}")
 plt.legend()
+
+
+# Fun little plot
+L = 0.5 # pendulum length in meters
+x = L*np.sin(theta3)
+y = L - L*np.cos(theta3)
+
+plt.scatter(x,y)
+plt.scatter(0,L, color = 'r')
