@@ -82,32 +82,55 @@ def heun(func, initial, time, step = None):
         
     f = []
     y_prime = []
-    f.append(initial[0])
-    y_prime.append(initial[1])
     
-    for ind, t in enumerate(time):
+    if len(initial) == 1:
+        f.append(initial[0])
         
-        if ind > 0:
+        for ind, t in enumerate(time):
             
-            # Using the Rung-Katta 2 method
-            # The first calculation: predictor
-            f_dzdt = func(time[ind -1], f[ind-1], y_prime[ind-1])[1]
-            f_z = func(time[ind-1], f[ind-1],  y_prime[ind-1])[0]
+            if ind > 0:
+                
+                # Using the Rung-Katta 2 method
+                # The first calculation: predictor
+                f_z = func(time[ind-1], f[ind-1])
+                
+                # secondary calculation: corrector
+                f_z2 = func(t,f[ind-1] + f_z*h)
+                
+                # putting calculation together
+                z = f[ind -1] + 0.5*h*(f_z + f_z2)
+                
+                # appending to empty lists
+                f.append(z)
+        return f
+                
+    else:
+        f.append(initial[0])
+        y_prime.append(initial[1])
+        
+        for ind, t in enumerate(time):
             
-            # secondary calculation: corrector
-            f_dzdt2 = func(t, f[ind-1] + f_z*h, y_prime[ind-1]+f_dzdt*h)[1]
-            f_z2 = func(t,f[ind-1] + f_z*h,y_prime[ind-1]+f_dzdt*h)[0]
+            if ind > 0:
+                
+                # Using the Rung-Katta 2 method
+                # The first calculation: predictor
+                f_dzdt = func(time[ind -1], f[ind-1], y_prime[ind-1])[1]
+                f_z = func(time[ind-1], f[ind-1],  y_prime[ind-1])[0]
+                
+                # secondary calculation: corrector
+                f_dzdt2 = func(t, f[ind-1] + f_z*h, y_prime[ind-1]+f_dzdt*h)[1]
+                f_z2 = func(t,f[ind-1] + f_z*h,y_prime[ind-1]+f_dzdt*h)[0]
+                
+                # putting calculation together
+                dzdt = y_prime[ind-1] + 0.5*h*(f_dzdt + f_dzdt2)
+                z = f[ind -1] + 0.5*h*(f_z + f_z2)
+                
+                # appending to empty lists
+                y_prime.append(dzdt)
+                f.append(z)
             
-            # putting calculation together
-            dzdt = y_prime[ind-1] + 0.5*h*(f_dzdt + f_dzdt2)
-            z = f[ind -1] + 0.5*h*(f_z + f_z2)
             
-            # appending to empty lists
-            y_prime.append(dzdt)
-            f.append(z)
-            
-            
-    return f,y_prime, time
+        return f,y_prime, time
 
 def rk4(func, initial, time, step = None):
     

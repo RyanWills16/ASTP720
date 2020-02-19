@@ -78,3 +78,12 @@ y = L - L*np.cos(theta3)
 
 plt.scatter(x,y)
 plt.scatter(0,L, color = 'r')
+
+# Homework Question 3
+def stiff(t,y,lam = 12):
+    dydt = [-lam*(y - np.cos(t))]
+    return dydt
+
+y1 = [0]
+
+sol4 = df.heun(stiff, y1, t)
