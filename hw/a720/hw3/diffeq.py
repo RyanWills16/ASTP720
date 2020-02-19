@@ -92,10 +92,10 @@ def heun(func, initial, time, step = None):
                 
                 # Using the Rung-Katta 2 method
                 # The first calculation: predictor
-                f_z = func(time[ind-1], f[ind-1])
+                f_z = float(func(time[ind-1], f[ind-1])[0])
                 
                 # secondary calculation: corrector
-                f_z2 = func(t,f[ind-1] + f_z*h)
+                f_z2 = float(func(t,f[ind-1] + f_z*h)[0])
                 
                 # putting calculation together
                 z = f[ind -1] + 0.5*h*(f_z + f_z2)

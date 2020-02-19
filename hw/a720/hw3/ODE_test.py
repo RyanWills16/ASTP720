@@ -87,3 +87,5 @@ def stiff(t,y,lam = 12):
 y1 = [0]
 
 sol4 = df.heun(stiff, y1, t)
+
+def solution()
