@@ -33,29 +33,45 @@ def euler(func, initial, time, step = None):
     # create empty lists for vales of y and y'
     f = []
     y_prime = []
-    f.append(initial[0])
-    y_prime.append(initial[1])
     
-    # iterate through the time series
-    for ind, t in enumerate(time):
+    if len(initial) == 1:
+        f.append(initial[0])
         
-        # start with the second value in the list
-        if ind > 0:
+        for ind, t in enumerate(time):
             
-            # calculate new values of y' from the input function, which
-            # is a list of functions obtained from the subs z = dy/dt
-            y_prime_new = y_prime[ind-1] + h*func(time[ind-1],f[ind-1],y_prime[ind-1])[1]
+            if ind > 0:
+                
+                # Using the Rung-Katta 2 method
+                # The first calculation: predictor
+                f_z = func(time[ind-1], f[ind-1])[0]
+                z = f[ind-1] + f_z
+                # appending to empty lists
+                f.append(z)
+        return f, time
+    
+    else: 
+        f.append(initial[0])
+        y_prime.append(initial[1])
+        # iterate through the time series
+        for ind, t in enumerate(time):
             
-            # append the new y' value to the empty list
-            y_prime.append(y_prime_new)
-            
-            # find the new y values using 
-            y_new = f[ind-1] + h*func(time[ind-1],f[ind-1],y_prime[ind])[0]
-            
-            # append new y value
-            f.append(y_new)
-            
-    return f,y_prime, time
+            # start with the second value in the list
+            if ind > 0:
+                
+                # calculate new values of y' from the input function, which
+                # is a list of functions obtained from the subs z = dy/dt
+                y_prime_new = y_prime[ind-1] + h*func(time[ind-1],f[ind-1],y_prime[ind-1])[1]
+                
+                # append the new y' value to the empty list
+                y_prime.append(y_prime_new)
+                
+                # find the new y values using 
+                y_new = f[ind-1] + h*func(time[ind-1],f[ind-1],y_prime[ind])[0]
+                
+                # append new y value
+                f.append(y_new)
+                
+        return f,y_prime, time
 
 def heun(func, initial, time, step = None):
     
@@ -92,17 +108,17 @@ def heun(func, initial, time, step = None):
                 
                 # Using the Rung-Katta 2 method
                 # The first calculation: predictor
-                f_z = func(time[ind-1], f[ind-1])
+                f_z = func(time[ind-1], f[ind-1])[0]
                 
                 # secondary calculation: corrector
-                f_z2 = func(t,f[ind-1] + f_z*h)
+                f_z2 = func(t,f[ind-1] + f_z*h)[0]
                 
                 # putting calculation together
                 z = f[ind -1] + 0.5*h*(f_z + f_z2)
                 
                 # appending to empty lists
                 f.append(z)
-        return f
+        return f, time
                 
     else:
         f.append(initial[0])
@@ -157,35 +173,66 @@ def rk4(func, initial, time, step = None):
         
     f = []
     y_prime = []
-    f.append(initial[0])
-    y_prime.append(initial[1])
-    for ind, t in enumerate(time):
-        if ind > 0:
-            
-            # Rung-Katta 4 method, multiple corrector steps
-            # k1 for each variable
-            k1_dzdt = func(time[ind -1], f[ind-1], y_prime[ind-1])[1]
-            k1_z = func(time[ind-1], f[ind-1],  y_prime[ind-1])[0]
-            
-            # k2 for each variable
-            k2_dzdt = func(time[ind -1] + h/2, f[ind-1] + k1_z*h/2, y_prime[ind-1]+k1_dzdt*h/2)[1]
-            k2_z = func(time[ind -1] + h/2,f[ind-1] + k1_z*h/2,y_prime[ind-1]+k1_dzdt*h/2)[0]
-            
-            # k3 for each variable
-            k3_dzdt = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2, y_prime[ind-1] + k2_dzdt*h/2)[1]
-            k3_z = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2, y_prime[ind-1] + k2_dzdt*h/2)[0]
-            
-            # k4 for each variable
-            k4_dzdt = func(t, f[ind-1] + k3_z*h, y_prime[ind-1] + k3_dzdt*h)[1]
-            k4_z = func(t, f[ind-1] + k3_z*h, y_prime[ind-1] + k3_dzdt*h)[0]
-            
-            # putting calculations together
-            dzdt = y_prime[ind-1] + (1/6)*h*(k1_dzdt + 2*k2_dzdt + 2*k3_dzdt + k4_dzdt)
-            z = f[ind -1] + (1/6)*h*(k1_z + 2*k2_z + 2*k3_z + k4_z)
-            
-            # appending to lists
-            y_prime.append(dzdt)
-            f.append(z)
+        
+    if len(initial) == 2:
+        f.append(initial[0])
+        y_prime.append(initial[1])
+        
+        for ind, t in enumerate(time):
             
             
-    return f,y_prime, time
+            if ind > 0:
+                
+                # Rung-Katta 4 method, multiple corrector steps
+                # k1 for each variable
+                k1_dzdt = func(time[ind -1], f[ind-1], y_prime[ind-1])[1]
+                k1_z = func(time[ind-1], f[ind-1],  y_prime[ind-1])[0]
+                
+                # k2 for each variable
+                k2_dzdt = func(time[ind -1] + h/2, f[ind-1] + k1_z*h/2, y_prime[ind-1]+k1_dzdt*h/2)[1]
+                k2_z = func(time[ind -1] + h/2,f[ind-1] + k1_z*h/2,y_prime[ind-1]+k1_dzdt*h/2)[0]
+                
+                # k3 for each variable
+                k3_dzdt = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2, y_prime[ind-1] + k2_dzdt*h/2)[1]
+                k3_z = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2, y_prime[ind-1] + k2_dzdt*h/2)[0]
+                
+                # k4 for each variable
+                k4_dzdt = func(t, f[ind-1] + k3_z*h, y_prime[ind-1] + k3_dzdt*h)[1]
+                k4_z = func(t, f[ind-1] + k3_z*h, y_prime[ind-1] + k3_dzdt*h)[0]
+                
+                # putting calculations together
+                dzdt = y_prime[ind-1] + (1/6)*h*(k1_dzdt + 2*k2_dzdt + 2*k3_dzdt + k4_dzdt)
+                z = f[ind -1] + (1/6)*h*(k1_z + 2*k2_z + 2*k3_z + k4_z)
+                
+                # appending to lists
+                y_prime.append(dzdt)
+                f.append(z)
+        return f, y_prime, time
+    
+    else:
+        f.append(initial[0])
+        
+        for ind, t in enumerate(time):
+            
+            if ind > 0:
+                
+                # Rung-Katta 4 method, multiple corrector steps
+                # k1 for each variable
+                k1_z = func(time[ind-1], f[ind-1])[0]
+                
+                # k2 for each variable
+                k2_z = func(time[ind -1] + h/2,f[ind-1] + k1_z*h/2)[0]
+                
+                # k3 for each variable
+                k3_z = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2)[0]
+                
+                # k4 for each variable
+                k4_z = func(t, f[ind-1] + k3_z*h)[0]
+                
+                # putting calculations together
+                z = f[ind -1] + (1/6)*h*(k1_z + 2*k2_z + 2*k3_z + k4_z)
+                
+                # appending to lists
+                f.append(z)
+                
+        return f, time
