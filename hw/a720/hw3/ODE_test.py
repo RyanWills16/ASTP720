@@ -109,7 +109,7 @@ plt.figure()
 plt.plot(t, y_sol, label = 'provided solution')
 plt.plot(t,sol4_huen, label = 'huen')
 plt.legend()
-8
+
 # plot euler results
 plt.figure()
 plt.plot(t,sol4_euler, label = 'euler')
@@ -124,15 +124,23 @@ plt.legend()
 
 # White Dwarf Hydrostatic equilibrium
 def hydroequil(r, M, P, Mu=2):
-    G = 6.67*10**-8
-    m_0 = M
-    p_0 = P
-    mu = Mu
-    
-    func = [4*mu*np.pi*r**2*(p_0/(1*10**13))**(3/5), -G*mu*m_0*(p_0/(1*10**13))**(3/5)*r**-2]
-    return func
+    G = 6.667*10**-8
+    r_sun = 69.634*10**9    # radius of sun in cm
+    m_sun =  1.989*10**22 # mass of sun in grams
 
-radius = np.linspace(0.1, 100, 101)
+    m = M
+    p = P
+    mu = Mu
+    C = 4*np.pi*mu*(1e13)**(-3/5)*r_sun**2
+    C2 = G*mu*(1e13)**(-3/5 )*r_sun**-2
+    
+    function = [C*r**2*p**(3/5), -C2*m*p**(3/5)*r**-2]
+    return function
+
+
+r_sun = 69.634*10**9    # radius of sun in cm
+m_sun =  1.989*10**22 # mass of sun in grams
+radius = np.linspace(0, 3, 1000)
 M = 0
 P = 1*10**13*((10**4)/2)**(5/3)
 initial = [M,P]
