@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import diffeq as df
 from scipy.integrate import odeint
+from astropy import units as u
 
 def examplepend(y,t,b,c):
     theta, omega = y 
@@ -108,7 +109,7 @@ plt.figure()
 plt.plot(t, y_sol, label = 'provided solution')
 plt.plot(t,sol4_huen, label = 'huen')
 plt.legend()
-
+8
 # plot euler results
 plt.figure()
 plt.plot(t,sol4_euler, label = 'euler')
@@ -121,4 +122,20 @@ plt.plot(t,sol4_rk4, label = 'rk4')
 plt.plot(t, y_sol, label = 'provided solution')
 plt.legend()
 
+# White Dwarf Hydrostatic equilibrium
+def hydroequil(r, M, P, Mu=2):
+    G = 6.67*10**-8
+    m_0 = M
+    p_0 = P
+    mu = Mu
+    
+    func = [4*mu*np.pi*r**2*(p_0/(1*10**13))**(3/5), -G*mu*m_0*(p_0/(1*10**13))**(3/5)*r**-2]
+    return func
 
+radius = np.linspace(0.1, 100, 101)
+M = 0
+P = 1*10**13*((10**4)/2)**(5/3)
+initial = [M,P]
+mass, pressure, radius = df.rk4(hydroequil, initial, radius)
+
+plt.plot(radius, mass)
