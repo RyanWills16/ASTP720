@@ -7,6 +7,8 @@ Created on Sat Feb 15 15:31:35 2020
 
 def euler(func, initial, time, step = None):
     '''
+    Takes a list of one or two funciton and a list of one or two intial conditions
+    
     Input:
         func: a function of two variables used for the calculation, obtained by setting 
             z = dydt (func[0]) and its derivative dzdt = d2ydt2 (func[1])
@@ -44,7 +46,7 @@ def euler(func, initial, time, step = None):
                 # Using the Rung-Katta 2 method
                 # The first calculation: predictor
                 f_z = func(time[ind-1], f[ind-1])[0]
-                z = f[ind-1] + f_z
+                z = f[ind-1] + f_z*h
                 # appending to empty lists
                 f.append(z)
         return f, time
@@ -76,6 +78,8 @@ def euler(func, initial, time, step = None):
 def heun(func, initial, time, step = None):
     
     '''
+    Takes a list of one or two funciton and a list of one or two intial conditions
+    
     Input:
         func: a function of two variables used for the calculation, obtained by setting 
             z = dydt (func[0]) and its derivative dzdt = d2ydt2 (func[1])
@@ -151,6 +155,8 @@ def heun(func, initial, time, step = None):
 def rk4(func, initial, time, step = None):
     
     '''
+    Takes a list of one or two funciton and a list of one or two intial conditions
+    
     Input:
         func: a function of two variables used for the calculation, obtained by setting 
             z = dydt (func[0]) and its derivative dzdt = d2ydt2 (func[1])
@@ -184,35 +190,34 @@ def rk4(func, initial, time, step = None):
             if ind > 0:
                 
                 # Rung-Katta 4 method, multiple corrector steps
-                # k1 for each variable
-                if time[ind-1] == 0:
-                    k1_dzdt = initial[1]
-                    k1_z = initial[0]
-                else:
-                    k1_dzdt = func(time[ind -1], f[ind-1], y_prime[ind-1])[1]
-                    k1_z = func(time[ind-1], f[ind-1],  y_prime[ind-1])[0]
                 
+                if time[ind-1] == 0:
+                    time[ind-1] = 1e-10
+                    
+                if t == 0:
+                    t = 1e-10
+                
+                # k1 for each variable
+                k1_dzdt = func(time[ind -1], f[ind-1], y_prime[ind-1])[1]
+                k1_z = func(time[ind-1], f[ind-1],  y_prime[ind-1])[0]
                 
                 # k2 for each variable
-                
-                k2_z = func(time[ind -1] + h/2,f[ind-1] + k1_z*h/2,y_prime[ind-1]+k1_dzdt*h/2)[0]
-                print('k2z =',k2_z)
                 k2_dzdt = func(time[ind -1] + h/2, f[ind-1] + k1_z*h/2, y_prime[ind-1]+k1_dzdt*h/2)[1]
                 print('k2 =',k2_dzdt)
+                k2_z = func(time[ind -1] + h/2,f[ind-1] + k1_z*h/2,y_prime[ind-1]+k1_dzdt*h/2)[0]
+                print('k2z =',k2_z)
                 
                 # k3 for each variable
-                
-                k3_z = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2, y_prime[ind-1] + k2_dzdt*h/2)[0]
-                print('k3z =',k3_z)
                 k3_dzdt = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2, y_prime[ind-1] + k2_dzdt*h/2)[1]
                 print('k3 =',k3_dzdt)
+                k3_z = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2, y_prime[ind-1] + k2_dzdt*h/2)[0]
+                print('k3z =',k3_z)
                 
                 # k4 for each variable
-                
-                k4_z = func(t, f[ind-1] + k3_z*h, y_prime[ind-1] + k3_dzdt*h)[0]
-                print('k4z =',k4_z)
                 k4_dzdt = func(t, f[ind-1] + k3_z*h, y_prime[ind-1] + k3_dzdt*h)[1]
                 print('k4 =',k4_dzdt)
+                k4_z = func(t, f[ind-1] + k3_z*h, y_prime[ind-1] + k3_dzdt*h)[0]
+                print('k4z =',k4_z)
                 
                 # putting calculations together
                 dzdt = y_prime[ind-1] + (1/6)*h*(k1_dzdt + 2*k2_dzdt + 2*k3_dzdt + k4_dzdt)
@@ -223,6 +228,7 @@ def rk4(func, initial, time, step = None):
                 # appending to lists
                 y_prime.append(dzdt)
                 f.append(z)
+                
         return f, y_prime, time
     
     else:
