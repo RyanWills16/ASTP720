@@ -167,12 +167,12 @@ plt.savefig('rk42.pdf')
 # White Dwarf Hydrostatic equilibrium
 def hydroequil(r, M, P, mu=2):
     G = 6.667*10**-8
-    r_sun = 69.634*10**9    # radius of sun in cm
-    m_sun =  1.989*10**33 # mass of sun in grams
-    
+    r_E = 637.1 * 10**6   # radius of Earth in cm
+    ro_c = 1*10**13 # the constant from the polytrope equation
+
     # defining some constants for the pressure and mass equations
-    C_mass = 4*np.pi*mu*(1e13)**(-3/5)*r_sun**2
-    C_pres = G*mu*(1e13)**(-3/5 )*r_sun**-2
+    C_mass = 4*np.pi*mu*(ro_c)**(-3/5)*r_E**2
+    C_pres = G*mu*(ro_c)**(-3/5 )*r_E**-2
     
     # return list of functions
     function = [C_mass*r**2*P**(3/5), -C_pres*M*P**(3/5)*r**-2]
@@ -181,26 +181,54 @@ def hydroequil(r, M, P, mu=2):
 # define functions for ODE_int
 def hydroequil2(init,r, mu=2):
     G = 6.667*10**-8
-    r_sun = 69.634*10**9    # radius of sun in cm
-    m_sun =  1.989*10**33 # mass of sun in grams
+    r_E = 637.1 * 10**6    # radius of Earth in cm
+    ro_c = 1*10**13 # the constant from the polytrope equation
     
     m,p = init # unpacking initial conditions
     
     # defining some constants for the pressure and mass equations
-    C_mass = 4*np.pi*mu*(1e13)**(-3/5)*r_sun**2
-    C_pres = G*mu*(1e13)**(-3/5 )*r_sun**-2
+    C_mass = 4*np.pi*mu*(ro_c)**(-3/5)*r_E**2
+    C_pres = G*mu*(ro_c)**(-3/5 )*r_E**-2
     
     # return list of functions
     function = [C_mass*r**2*P**(3/5), -C_pres*M*P**(3/5)*r**-2]
     return function
 
 # define radius in terms of stellar radii
-radius = np.linspace(1e-10, 3, 1000)
+radius = np.linspace(0, 3, 100)
 
 # initial conditions
 M = 0
-P = 1*10**13*((10**4)/2)**(5/3)
+P = 1*10**13*((10**6)/2)**(5/3)
 initial = [M,P]
+
+# test the units of all of the equations
+def testunits():
+    # initial mass and pressure
+    M = 1*u.g
+    P = 1*10**13*u.erg**2*u.second**2*u.g**(-8/3)*((10**4*u.g*u.cm**-3)/2)**(5/3)
+    
+    # gravitational constant
+    G = 6.667*10**-8*u.dyne*u.cm**2*u.g**-2
+    
+    # the constant from the polytrope equation
+    ro_c = 1*10**13*u.erg**2*u.second**2*u.g**(-8/3)
+    
+    # radius of earth
+    r_E = 637.1 * 10**6 * u.cm
+    mu =2
+    
+    # constants from pressure and mass equation
+    C_pres = G*mu*(ro_c)**(-3/5 )*r_E**-2
+    C_mass = 4*np.pi*mu*(ro_c)**(-3/5)*r_E**2
+    
+    # dP/dr and dM/dr
+    test3 = C_mass*P**(3/5)
+    test2 = -C_pres*M*P**(3/5)
+    
+    return test3, test2
+
+M_test, P_test = testunits()
 
 # get rk4 solution
 mass, pressure, radius = df.rk4(hydroequil, initial, radius)

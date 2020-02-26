@@ -153,7 +153,7 @@ def heun(func, initial, time, step = None):
         return f,y_prime, time
 
 def rk4(func, initial, time, step = None):
-    
+    from astropy import units as u
     '''
     Takes a list of one or two funciton and a list of one or two intial conditions
     
@@ -184,46 +184,51 @@ def rk4(func, initial, time, step = None):
         f.append(initial[0])
         y_prime.append(initial[1])
         
-        for ind, t in enumerate(time):
+        for i, t in enumerate(time):
             
             
-            if ind > 0:
+            if i > 0:
                 
                 # Rung-Katta 4 method, multiple corrector steps
                 
-                if time[ind-1] == 0:
-                    time[ind-1] = 1e-10
+                if time[i-1] == 0:
+                    k1_dzdt = initial[1]
+#                    print('k1 =',k1_dzdt)
+                    k1_z = initial[0]
+#                    print('k1z =',k1_dzdt)
                     
-                if t == 0:
-                    t = 1e-10
+                    
+                else:
+                    # k1 for each variable
+                    k1_dzdt = func(time[i -1], f[i-1], y_prime[i-1])[1]
+#                    print('k1 =',k1_dzdt)
+                    k1_z = func(time[i-1], f[i-1],  y_prime[i-1])[0]
+#                    print('k1z =',k1_dzdt)
                 
-                # k1 for each variable
-                k1_dzdt = func(time[ind -1], f[ind-1], y_prime[ind-1])[1]
-                k1_z = func(time[ind-1], f[ind-1],  y_prime[ind-1])[0]
                 
                 # k2 for each variable
-                k2_dzdt = func(time[ind -1] + h/2, f[ind-1] + k1_z*h/2, y_prime[ind-1]+k1_dzdt*h/2)[1]
-                print('k2 =',k2_dzdt)
-                k2_z = func(time[ind -1] + h/2,f[ind-1] + k1_z*h/2,y_prime[ind-1]+k1_dzdt*h/2)[0]
-                print('k2z =',k2_z)
+                k2_dzdt = func(time[i -1] + h/2, f[i-1] + k1_z*h/2, y_prime[i-1]+k1_dzdt*h/2)[1]
+#                print('k2 =',k2_dzdt)
+                k2_z = func(time[i -1] + h/2,f[i-1] + k1_z*h/2,y_prime[i-1]+k1_dzdt*h/2)[0]
+#                print('k2z =',k2_z)
                 
                 # k3 for each variable
-                k3_dzdt = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2, y_prime[ind-1] + k2_dzdt*h/2)[1]
-                print('k3 =',k3_dzdt)
-                k3_z = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2, y_prime[ind-1] + k2_dzdt*h/2)[0]
-                print('k3z =',k3_z)
+                k3_dzdt = func(time[i-1] + h/2, f[i-1] + k2_z*h/2, y_prime[i-1] + k2_dzdt*h/2)[1]
+#                print('k3 =',k3_dzdt)
+                k3_z = func(time[i-1] + h/2, f[i-1] + k2_z*h/2, y_prime[i-1] + k2_dzdt*h/2)[0]
+#                print('k3z =',k3_z)
                 
                 # k4 for each variable
-                k4_dzdt = func(t, f[ind-1] + k3_z*h, y_prime[ind-1] + k3_dzdt*h)[1]
-                print('k4 =',k4_dzdt)
-                k4_z = func(t, f[ind-1] + k3_z*h, y_prime[ind-1] + k3_dzdt*h)[0]
-                print('k4z =',k4_z)
+                k4_dzdt = func(t, f[i-1] + k3_z*h, y_prime[i-1] + k3_dzdt*h)[1]
+#                print('k4 =',k4_dzdt)
+                k4_z = func(t, f[i-1] + k3_z*h, y_prime[i-1] + k3_dzdt*h)[0]
+#                print('k4z =',k4_z)
                 
                 # putting calculations together
-                dzdt = y_prime[ind-1] + (1/6)*h*(k1_dzdt + 2*k2_dzdt + 2*k3_dzdt + k4_dzdt)
-                print('dzdt =',dzdt)
-                z = f[ind -1] + (1/6)*h*(k1_z + 2*k2_z + 2*k3_z + k4_z)
-                print('z =',z)
+                dzdt = y_prime[i-1] + (1/6)*h*(k1_dzdt + 2*k2_dzdt + 2*k3_dzdt + k4_dzdt)
+#                print('dzdt =',dzdt)
+                z = f[i-1] + (1/6)*h*(k1_z + 2*k2_z + 2*k3_z + k4_z)
+#                print('z =',z,'\n')
                 
                 # appending to lists
                 y_prime.append(dzdt)
@@ -234,25 +239,25 @@ def rk4(func, initial, time, step = None):
     else:
         f.append(initial[0])
         
-        for ind, t in enumerate(time):
+        for i, t in enumerate(time):
             
-            if ind > 0:
+            if i > 0:
                 
                 # Rung-Katta 4 method, multiple corrector steps
                 # k1 for each variable
-                k1_z = func(time[ind-1], f[ind-1])[0]
+                k1_z = func(time[i-1], f[i-1])[0]
                 
                 # k2 for each variable
-                k2_z = func(time[ind -1] + h/2,f[ind-1] + k1_z*h/2)[0]
+                k2_z = func(time[i -1] + h/2,f[i-1] + k1_z*h/2)[0]
                 
                 # k3 for each variable
-                k3_z = func(time[ind-1] + h/2, f[ind-1] + k2_z*h/2)[0]
+                k3_z = func(time[i-1] + h/2, f[i-1] + k2_z*h/2)[0]
                 
                 # k4 for each variable
-                k4_z = func(t, f[ind-1] + k3_z*h)[0]
+                k4_z = func(t, f[i-1] + k3_z*h)[0]
                 
                 # putting calculations together
-                z = f[ind -1] + (1/6)*h*(k1_z + 2*k2_z + 2*k3_z + k4_z)
+                z = f[i-1] + (1/6)*h*(k1_z + 2*k2_z + 2*k3_z + k4_z)
                 
                 # appending to lists
                 f.append(z)
