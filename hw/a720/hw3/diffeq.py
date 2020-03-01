@@ -189,20 +189,20 @@ def rk4(func, initial, time, step = None):
             
             if i > 0:
                 
-                # Rung-Katta 4 method, multiple corrector steps
+                # Rung-Katta 4 method
                 
-                if time[i-1] == 0:
-                    k1_dzdt = initial[1]
-#                    print('k1 =',k1_dzdt)
-                    k1_z = initial[0]
-#                    print('k1z =',k1_dzdt)
+#                if time[i-1] == 0:
+#                    k1_dzdt = initial[1]
+##                    print('k1 =',k1_dzdt)
+#                    k1_z = initial[0]
+##                    print('k1z =',k1_dzdt)
                     
                     
-                else:
-                    # k1 for each variable
-                    k1_dzdt = func(time[i -1], f[i-1], y_prime[i-1])[1]
+#                else:
+                # k1 for each variable
+                k1_dzdt = func(time[i -1], f[i-1], y_prime[i-1])[1]
 #                    print('k1 =',k1_dzdt)
-                    k1_z = func(time[i-1], f[i-1],  y_prime[i-1])[0]
+                k1_z = func(time[i-1], f[i-1],  y_prime[i-1])[0]
 #                    print('k1z =',k1_dzdt)
                 
                 

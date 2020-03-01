@@ -104,6 +104,7 @@ y = L - L*np.cos(theta3)
 plt.figure()
 plt.scatter(x,y)
 plt.scatter(0,L, color = 'r')
+plt.savefig('pendulum.pdf')
 
 # Homework Question 3
 def stiff(t,y,lam = 12):
@@ -130,36 +131,36 @@ for i in t:
 
 # plot huen results
 plt.figure(figsize = (6.75,5))
-plt.xlabel('Radius (R_sun)', fontsize = 14)
-plt.ylabel('Menc(r) (g)', fontsize = 14)
+plt.xlabel('Time', fontsize = 14)
+plt.ylabel('y', fontsize = 14)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
-plt.scatter(t, y_sol, label = 'solution', color = 'black')
-plt.plot(t,sol4_huen, label = 'huen', color = 'green')
+plt.scatter(t, y_sol, label = 'solution', color = 'green')
+plt.plot(t,sol4_huen, label = 'huen', color = 'black')
 plt.tight_layout()
 plt.legend(fontsize = 12)
 plt.savefig('huen2.pdf')
 
 # plot euler results
 plt.figure(figsize = (6.75,5))
-plt.xlabel('Radius (R_sun)', fontsize = 14)
-plt.ylabel('Menc(r) (g)', fontsize = 14)
+plt.xlabel('Time', fontsize = 14)
+plt.ylabel('y', fontsize = 14)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
-plt.scatter(t,sol4_euler, label = 'euler', color = 'black')
-plt.plot(t, y_sol, label = 'solution',color = 'green')
+plt.scatter(t,sol4_euler, label = 'euler', color = 'green')
+plt.plot(t, y_sol, label = 'solution',color = 'black')
 plt.tight_layout()
 plt.legend(fontsize = 12)
 plt.savefig('euler2.pdf')
 
 # plot rk4 results
 plt.figure(figsize = (6.75,5))
-plt.xlabel('Radius (R_sun)', fontsize = 14)
-plt.ylabel('Menc(r) (g)', fontsize = 14)
+plt.xlabel('Time', fontsize = 14)
+plt.ylabel('y', fontsize = 14)
 plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
-plt.scatter(t,sol4_rk4, label = 'rk4', color = 'black')
-plt.plot(t, y_sol, label = 'solution', color = 'green')
+plt.scatter(t,sol4_rk4, label = 'rk4', color = 'green')
+plt.plot(t, y_sol, label = 'solution', color = 'black')
 plt.tight_layout()
 plt.legend(fontsize = 12)
 plt.savefig('rk42.pdf')
@@ -212,15 +213,15 @@ def testunits():
     G = 6.667*10**-8*u.dyne*u.cm**2*u.g**-2
     
     # the constant from the polytrope equation
-    ro_c = 1*10**13*u.erg**2*u.second**2*u.g**(-8/3)
+    a = 1*10**13*u.erg**2*u.second**2*u.g**(-8/3)
     
     # radius of earth
     r_E = 637.1 * 10**6 * u.cm
     mu =2
     
     # constants from pressure and mass equation
-    C_pres = G*mu*(ro_c)**(-3/5 )*r_E**-2
-    C_mass = 4*np.pi*mu*(ro_c)**(-3/5)*r_E**2
+    C_pres = G*mu*(a)**(-3/5 )*r_E**-2
+    C_mass = 4*np.pi*mu*(a)**(-3/5)*r_E**2
     
     # dP/dr and dM/dr
     test3 = C_mass*P**(3/5)
@@ -251,7 +252,7 @@ plt.xticks(fontsize = 14)
 plt.yticks(fontsize = 14)
 plt.plot(radius, pressure, color = 'black')
 plt.tight_layout()
-plt.savefig('massenc.pdf')
+plt.savefig('pressure.pdf')
 
 # ode_int solution
 # returns the same thing as my solution
