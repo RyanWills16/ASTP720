@@ -19,6 +19,30 @@ print(myTree.root.children)
 
 test = myTree.createChild(myTree.root)
 print(myTree.root.children)
+print(myTree.root.parent_gal)
 
-print(myTree.root.children[6].xmax)
+print(myTree.root.children[1].numGal)
 
+
+test2 = myTree.createChild(myTree.root.children[1])
+
+print(myTree.root.children[1].children[2].numGal)
+print(myTree.root.children[1].parent)
+print(myTree.root)
+
+
+test3 = myTree.createChild(myTree.root.children[1].children[2])
+
+print(len(myTree.root.children[1].children[2].children))
+
+print(myTree.root.children[1].children[2].children[1].numGal)
+
+myTree2 = cd.Tree(X,Y,Z,file)
+
+myTree2.constructTree(myTree2.root)
+
+print(len(myTree2.root.children))
+
+print(myTree2.root.children[0].children[0].children[0].children[0].children[0].gals[0].M)
+
+print(myTree2.root.children[0].children[0].children[0].children[0].children[0].xmax)
