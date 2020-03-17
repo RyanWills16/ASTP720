@@ -48,7 +48,11 @@ class node:
         
         self.parent_gal = 0 # number of galaxies under the node if a parent
         
-        self.COM = 0
+        self.CoM_num = [0,0,0] # numerator of the center of mass equation
+        
+        self.totM = 0 # total mass within a node
+        
+        self.rCoM = [0,0,0] # CoM radius vector [x,y,z]
         
         if numGal is not None:
             self.numGal = numGal # same as parent_gal, unless root or leaf
@@ -71,6 +75,40 @@ class node:
         
         self.gals.append(gal)
         return
+    
+    def calcCOM(self):
+        '''
+        Calculate the center of mass of each node
+        
+        '''
+        if len(self.children) == 0:
+            self.CoM_num[0] = self.gals[0].x
+            self.CoM_num[1] = self.gals[0].y
+            self.CoM_num[2] = self.gals[0].z
+            
+            return self.gals[0].x, self.gals[0].y, self.gals[0].z, self.gals[0].M
+        
+        else:
+            
+            for child in self.children:
+                
+                com = child.calcCOM()
+                
+                self.CoM_num[0] += com[0]*com[3]
+                self.CoM_num[1] += com[1]*com[3]
+                self.CoM_num[2] += com[2]*com[3]
+                self.totM += com[3]
+            
+            self.rCoM[0] = self.CoM_num[0] / self.totM
+            self.rCoM[1] = self.CoM_num[1] / self.totM
+            self.rCoM[2] = self.CoM_num[2] / self.totM
+            
+            return self.rCoM[0], self.rCoM[1], self.rCoM[2], self.totM
+            
+        
+            
+        
+        
         
 class Tree:
     
@@ -83,6 +121,8 @@ class Tree:
         
         self.galList = np.load(file)
         
+        self.numNode = 0
+        
         self.root = node(X_mb, Y_mb, Z_mb)
         
         
@@ -90,7 +130,8 @@ class Tree:
         
         '''
         
-        Method for creating child nodes from input parents based on galaxy positions
+        Helper Method for createChild method which actually creats child nodes 
+        from input parents based on galaxy positions
         
         '''
         xmid = (parent.xmin + parent.xmax)/2
@@ -215,8 +256,36 @@ class Tree:
                 
                 g = self.galList
                 
+                self.numNode += 1
+                
                 for i in range(len(g)):
                     if g[i,0] >= x0 and g[i,0] < x1 and g[i,1] >= y0 and g[i,1] < y1 and g[i,2] >= z0 and g[i,2] < z1:
                         node.addgal(galaxy(g[i,0],g[i,1], g[i,2]))
-                    
+                        
+                        node.CoM_num[0] = node.gals[0].x*node.gals[0].M
+                        node.CoM_num[1] = node.gals[0].y*node.gals[0].M
+                        node.CoM_num[2] = node.gals[0].z*node.gals[0].M
+                        node.totM = node.gals[0].M
+                            
+                        
+#    def calcCOM(self, parent):
+#        '''
+#        Calculate the center of mass of each node
+#        
+#        '''
+#        
+#        for child in parent.children:
+#            if child.totM == 0:
+#                self.calcCOM(child)
+#                
+#            else:
+#                parent.totM += child.totM
+#                
+#                parent.CoM_num[0] += child.CoM_num[0]
+#                parent.CoM_num[1] += child.CoM_num[1]
+#                parent.CoM_num[2] += child.CoM_num[2]
+#            
+#        parent.rCoM[0] = parent.CoM_num[0]/parent.totM
+#        parent.rCoM[1] = parent.CoM_num[1]/parent.totM
+#        parent.rCoM[2] = parent.CoM_num[2]/parent.totM
                 

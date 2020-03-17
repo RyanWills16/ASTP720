@@ -46,3 +46,9 @@ print(len(myTree2.root.children))
 print(myTree2.root.children[0].children[0].children[0].children[0].children[0].gals[0].M)
 
 print(myTree2.root.children[0].children[0].children[0].children[0].children[0].xmax)
+
+myTree3 = cd.Tree(X, Y, Z, file)
+myTree3.constructTree(myTree3.root)
+myTree3.root.calcCOM()
+
+print(myTree3.root.children[0].children[0].numGal)
