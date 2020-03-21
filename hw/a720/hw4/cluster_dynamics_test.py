@@ -6,7 +6,7 @@ Created on Sat Mar 14 20:13:52 2020
 """
 
 import cluster_dynamics as cd
-
+import numpy as np
 file = 'galaxies0.npy'
 
 X = (0,11)
@@ -51,4 +51,8 @@ myTree3 = cd.Tree(X, Y, Z, file)
 myTree3.constructTree(myTree3.root)
 myTree3.root.calcCOM()
 
-print(myTree3.root.children[0].children[0].numGal)
+print(myTree3.root.rCoM)
+
+a = np.array([[1,2,3], [3,4,5]])
+
+newa = np.append(a, [[50,60,70]], axis = 0)

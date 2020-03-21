@@ -267,25 +267,5 @@ class Tree:
                         node.CoM_num[2] = node.gals[0].z*node.gals[0].M
                         node.totM = node.gals[0].M
                             
-                        
-#    def calcCOM(self, parent):
-#        '''
-#        Calculate the center of mass of each node
-#        
-#        '''
-#        
-#        for child in parent.children:
-#            if child.totM == 0:
-#                self.calcCOM(child)
-#                
-#            else:
-#                parent.totM += child.totM
-#                
-#                parent.CoM_num[0] += child.CoM_num[0]
-#                parent.CoM_num[1] += child.CoM_num[1]
-#                parent.CoM_num[2] += child.CoM_num[2]
-#            
-#        parent.rCoM[0] = parent.CoM_num[0]/parent.totM
-#        parent.rCoM[1] = parent.CoM_num[1]/parent.totM
-#        parent.rCoM[2] = parent.CoM_num[2]/parent.totM
+    def calcDist() 
                 
