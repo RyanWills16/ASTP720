@@ -12,7 +12,7 @@ from astropy import units as u
 
 class galaxy:
     
-    def __init__(self, x, y, z, M = 1e12):
+    def __init__(self, x, y, z, x_p = 0, y_p = 0, z_p = 0, M = 1e12):
         
         '''
         Initialize galaxy object with its coordinates and position vector
@@ -23,7 +23,11 @@ class galaxy:
         self.y = y
         self.z = z
         self.M = M
-        self.r = (self.x, self.y, self.z)
+        self.r = [x, y, z]
+        
+        self.accel = [0,0,0]
+        
+        prev_r = [x_p, y_p, z_p]
 
 class node:
     
@@ -112,25 +116,36 @@ class node:
         
 class Tree:
     
-    def __init__(self, X_mb, Y_mb, Z_mb, file):
+    def __init__(self, X_mb, Y_mb, Z_mb, galList):
         
         '''
         Initialize the tree with the root node and the list of galaxy positions
         
         '''
         
-        self.galList = np.load(file)
+        # array of galaxy positions
+        self.galList = galList
         
         self.numNode = 0
         
         self.root = node(X_mb, Y_mb, Z_mb)
+        
+        # list of galaxy objects
+        self.galaxies = []
+        
+        self.constructTree(self.root)
+        
+        self.getGals(self.root)
+        
+        self.root.calcCOM()
+        
         
         
     def createChild(self, parent):
         
         '''
         
-        Helper Method for createChild method which actually creats child nodes 
+        Helper Method for constructTree method which actually creats child nodes 
         from input parents based on galaxy positions
         
         '''
@@ -240,7 +255,7 @@ class Tree:
         
         # iterate through the children of the parent node
         for node in parent.children:
-            
+            self.numNode += 1
             # if there are multiple galaxies in the node, call the method again
             if node.numGal > 1:
                 self.constructTree(node)
@@ -256,8 +271,6 @@ class Tree:
                 
                 g = self.galList
                 
-                self.numNode += 1
-                
                 for i in range(len(g)):
                     if g[i,0] >= x0 and g[i,0] < x1 and g[i,1] >= y0 and g[i,1] < y1 and g[i,2] >= z0 and g[i,2] < z1:
                         node.addgal(galaxy(g[i,0],g[i,1], g[i,2]))
@@ -265,7 +278,129 @@ class Tree:
                         node.CoM_num[0] = node.gals[0].x*node.gals[0].M
                         node.CoM_num[1] = node.gals[0].y*node.gals[0].M
                         node.CoM_num[2] = node.gals[0].z*node.gals[0].M
+                        
+                        # make the center of mass of leaves the galaxy position
+                        node.rCoM[0] = node.gals[0].x
+                        node.rCoM[1] = node.gals[0].y
+                        node.rCoM[2] = node.gals[0].z
+                        
+                        # make total mass of leaf the mass of the galaxy
                         node.totM = node.gals[0].M
-                            
-    def calcDist() 
+    
+    def getGals(self, node):
+        if len(node.children) == 0:
+            self.galaxies.append(node.gals[0])
+            
+        else: 
+            for child in node.children:
+                self.getGals(child)
+        
+    def calcAccel(self, node, galaxy):
+        
+        G = 4.5172e-48 # Mpc^3/ s^2 / solar mass
+        
+        
+        accel = [0,0,0]
                 
+        if len(node.children) > 0:
+            for child in node.children:
+                
+                r = np.sqrt((child.rCoM[0] - galaxy.x)**2 + (child.rCoM[1] - galaxy.y)**2 + (child.rCoM[2] - galaxy.z)**2)
+                node_size = child.xmax - child.xmin
+                
+                if r == 0:
+                    continue
+                
+                if node_size/r > 1:
+                    self.calcAccel(child, galaxy)
+                    
+                else:
+                    M = child.totM
+                    accel[0] += G * M * (child.rCoM[0] - galaxy.x)/r**3
+                    accel[1] += G * M * (child.rCoM[1] - galaxy.y)/r**3
+                    accel[2] += G * M * (child.rCoM[2] - galaxy.z)/r**3
+                    
+        else:
+            r = np.sqrt((node.rCoM[0] - galaxy.x)**2 + (node.rCoM[1] - galaxy.y)**2 + (node.rCoM[2] - galaxy.z)**2)
+            if r == 0:
+                accel[0] += 0
+                accel[1] += 0
+                accel[2] += 0
+                
+            else: 
+                accel[0] += G * M * (node.rCoM[0] - galaxy.x)/r**3
+                accel[1] += G * M * (node.rCoM[1] - galaxy.y)/r**3
+                accel[2] += G * M * (node.rCoM[2] - galaxy.z)/r**3
+                
+        return accel
+                    
+            
+            
+    def calcPos(self, step):
+        galaxies = self.galaxies
+        new_galaxies = []
+        step = step * 3.154e7 # convert step in years to step in seconds
+        
+        for i in galaxies:
+            accel = self.calcAccel(self.root, i, step )
+            
+            new_x = 2*i.x - i.x_p + (step**2)*(accel[0])
+            new_y = 2*i.y - i.y_p + (step**2)*(accel[1])
+            new_z = 2*i.z - i.z_p + (step**2)*(accel[2])
+            
+            new_galaxies.append(galaxy(new_x, new_y, new_z, x_p = i.x, y_p = i.y, z_p = i.z))
+        
+        return new_galaxies
+            
+                    
+        
+#    def calcAccel(self, node, x, y, z, node2):
+#        
+#        '''
+#        Calculate acceleration on node2 due to node
+#        '''
+#        
+#        G = 4.5172e-48
+#        
+#        if node == node2:
+#            return
+#        
+#        r = np.sqrt((node.rCoM[0] - x)**2 + (node.rCoM[1] - y)**2 + (node.rCoM[3] - x)**2)
+#        node_size = node.xmax - node.xmin
+#        
+#        if node_size/r > 1:
+#            for child in node.children:
+#                self.calcAccel(child, x, y, z, node2)
+#        else:
+#            M = node.totM
+#            x_a = G * M * (node.rCoM[0] - x)/r**3
+#            y_a = G * M * (node.rCoM[0] - y)/r**3
+#            z_a = G * M * (node.rCoM[0] - x)/r**3
+#            
+#        return x_a, y_a, z_a
+#    
+#    def calcPos(self, nd):
+#        
+#        '''
+#        Calculate new position using help of function calcAccel
+#        '''
+#        
+#        galaxies = []
+#        accel = [0,0,0]
+#        if nd.children > 0:
+#            
+#            for node in nd.children:
+#                self.calcPos(node)
+#                
+#        else:
+#            x = nd.gals[0].x
+#            y = nd.gals[0].y
+#            z = nd.gals[0].z
+#            
+#            a = self.calcAccel(self.root, x, y, z, nd)
+#            
+#            if a is not None:
+#                accel[0] += a[0]
+#                accel[1] += a[1]
+#                accel[2] += a[2]
+            
