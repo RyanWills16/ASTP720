@@ -5,18 +5,13 @@ Created on Wed Mar 11 15:55:13 2020
 @author: Ryan
 """
 
-import numpy as np
-import matplotlib.pyplot as plt
-from astropy import units as u
-
-
 class galaxy:
     
     def __init__(self, x, y, z, x_p = 0, y_p = 0, z_p = 0, M = 1e12):
         
         '''
-        Initialize galaxy object with its coordinates and position vector
-        
+        Initialize galaxy object with its coordinates and position vector and 
+        acceleration vector
         '''
         
         # galaxy's current coordinates for a particular iteration
@@ -43,8 +38,7 @@ class node:
         
         '''
         Initialize node with is min and max values in each dimension, children,
-        galaxies, p
-        
+        galaxies, parent, center of mass, and total mass
         '''
         
         self.xmin, self.xmax = x_b
@@ -73,8 +67,8 @@ class node:
         
         '''
         Method to add child nodes to parent node
-        
         '''
+        
         self.children.append(child)
         return
     
@@ -82,7 +76,6 @@ class node:
         
         '''
         Method to add galaxy objects to node
-        
         '''
         
         self.gals.append(gal)
@@ -90,9 +83,9 @@ class node:
     
     def calcCOM(self):
         '''
-        Calculate the center of mass of each node
-        
+        Calculate the center of mass of each node, takes the tree root node
         '''
+        
         if len(self.children) == 0:
             self.CoM_num[0] = self.gals[0].x
             self.CoM_num[1] = self.gals[0].y
@@ -122,9 +115,14 @@ class Tree:
     def __init__(self, X_mb, Y_mb, Z_mb, galaxies):
         
         '''
-        Initialize the tree with the root node and the list of galaxy positions
-        
+        Initialize the tree with the root node and the list of galaxy positions.
+        Construct the tree and calculate the CoM of all nodes
         '''
+        
+        self.xmin, self.xmax = X_mb
+        self.ymin, self.ymax = Y_mb
+        self.zmin, self.zmax = Z_mb
+        
         # list of galaxy objects, used in 
         self.galaxies = galaxies
         
@@ -135,12 +133,16 @@ class Tree:
         # array of galaxy positions, used in createChild
         self.galList = self.galArray()
         
+        # construct the Tree
         self.constructTree(self.root)
         
+        # calc all node COMs
         self.root.calcCOM()
     
     
     def galArray(self):
+        import numpy as np
+        
         a = np.array([[self.galaxies[0].x,self.galaxies[0].y,self.galaxies[0].z]])
         
         for ind, i in enumerate(self.galaxies):
@@ -152,11 +154,10 @@ class Tree:
     def createChild(self, parent):
         
         '''
-        
         Helper Method for constructTree method which actually creats child nodes 
         from input parents based on galaxy positions
-        
         '''
+        
         xmid = (parent.xmin + parent.xmax)/2
         ymid = (parent.ymin + parent.ymax)/2
         zmid = (parent.zmin + parent.zmax)/2
@@ -255,8 +256,8 @@ class Tree:
         Method to construct the entire tree and add galaxies to nodes
         
         Works recursively
-        
         '''
+        
         # for the input node, which should be the root node initially, create
         # children
         self.createChild(parent)
@@ -292,16 +293,9 @@ class Tree:
                         
                         # make total mass of leaf the mass of the galaxy
                         node.totM = node.gals[0].M
-    
-#    def getGals(self, node):
-#        if len(node.children) == 0:
-#            self.galaxies.append(node.gals[0])
-#            
-#        else: 
-#            for child in node.children:
-#                self.getGals(child)
         
     def calcAccel(self, node, galaxy):
+        import numpy as np
         
         '''
         method calculates the acceleration on a given galaxy due to all other 
@@ -316,6 +310,7 @@ class Tree:
         if len(node.children) > 0:
             for child in node.children:
                 
+                # calculate distance between galaxy and node
                 r = np.sqrt((child.rCoM[0] - galaxy.x)**2 + (child.rCoM[1] - galaxy.y)**2 + (child.rCoM[2] - galaxy.z)**2)
                 node_size = child.xmax - child.xmin
                 
@@ -331,11 +326,21 @@ class Tree:
                 # if the node's size is smaller than r, calculate accel using
                 # the center of mass of the node and its total mass enclosed
                 else:
-                    print('calc')
-                    M = child.totM
-                    ga[0] += G * M * (child.rCoM[0] - galaxy.x)/r**3
-                    ga[1] += G * M * (child.rCoM[1] - galaxy.y)/r**3
-                    ga[2] += G * M * (child.rCoM[2] - galaxy.z)/r**3
+                    # force softening condition
+                    if r < 0.01:
+#                        print('softened')
+                        M = child.totM
+                        e = 0.005 # Mpc
+                        ga[0] += G * M * (child.rCoM[0] - galaxy.x)/((r**2 + e**2)*r)
+                        ga[1] += G * M * (child.rCoM[1] - galaxy.y)/((r**2 + e**2)*r)
+                        ga[2] += G * M * (child.rCoM[2] - galaxy.z)/((r**2 + e**2)*r)
+                        
+                    else:
+#                        print('calc')
+                        M = child.totM
+                        ga[0] += G * M * (child.rCoM[0] - galaxy.x)/r**3
+                        ga[1] += G * M * (child.rCoM[1] - galaxy.y)/r**3
+                        ga[2] += G * M * (child.rCoM[2] - galaxy.z)/r**3
         
         # if the node does not have children           
         elif len(node.children) == 0:
@@ -349,19 +354,30 @@ class Tree:
             
             # if the node is a leaf and therefore has only one galaxy, add to accel
             else: 
-                print('calc2')
-                M = node.totM
-                ga[0] += G * M * (node.rCoM[0] - galaxy.x)/r**3
-                ga[1] += G * M * (node.rCoM[1] - galaxy.y)/r**3
-                ga[2] += G * M * (node.rCoM[2] - galaxy.z)/r**3
+                if r < 0.01:
+#                    print('softened2')
+                    M = node.totM
+                    e = 0.005 # Mpc
+                    ga[0] += G * M * (node.rCoM[0] - galaxy.x)/((r**2 + e**2)*r)
+                    ga[1] += G * M * (node.rCoM[1] - galaxy.y)/((r**2 + e**2)*r)
+                    ga[2] += G * M * (node.rCoM[2] - galaxy.z)/((r**2 + e**2)*r)
+                    
+                else:
+#                    print('calc2')
+                    M = node.totM
+                    ga[0] += G * M * (node.rCoM[0] - galaxy.x)/r**3
+                    ga[1] += G * M * (node.rCoM[1] - galaxy.y)/r**3
+                    ga[2] += G * M * (node.rCoM[2] - galaxy.z)/r**3
                     
             
             
     def calcPos(self, step):
+        
         '''
         method for calculating the new position of the galaxy by calling 
         calcAccel. The step size is the time step to take in years.
         '''
+        
         galaxies = self.galaxies
         new_galaxies = []
         step = step * 3.154e7 # convert step in years to step in seconds
@@ -378,67 +394,18 @@ class Tree:
         return new_galaxies
             
 def createGalList(gal_array1, gal_array2):
+    
     '''
     Method used to create list of galaxy objects from the two .npy files
     used to initialize the tree. 
     
     gal_array1 is from galaxies0.npy, and gal_array2 is from galaxies1.npy.
     '''
+    
     g1 = gal_array1
     g2 = gal_array2
     galaxies = []
     for i in range(len(g1)):
         galaxies.append(galaxy(g2[i,0],g2[i,1],g2[i,2], x_p = g1[i,0], y_p = g1[i,1], z_p = g1[i,2]))
         
-    return galaxies              
-        
-#    def calcAccel(self, node, x, y, z, node2):
-#        
-#        '''
-#        Calculate acceleration on node2 due to node
-#        '''
-#        
-#        G = 4.5172e-48
-#        
-#        if node == node2:
-#            return
-#        
-#        r = np.sqrt((node.rCoM[0] - x)**2 + (node.rCoM[1] - y)**2 + (node.rCoM[3] - x)**2)
-#        node_size = node.xmax - node.xmin
-#        
-#        if node_size/r > 1:
-#            for child in node.children:
-#                self.calcAccel(child, x, y, z, node2)
-#        else:
-#            M = node.totM
-#            x_a = G * M * (node.rCoM[0] - x)/r**3
-#            y_a = G * M * (node.rCoM[0] - y)/r**3
-#            z_a = G * M * (node.rCoM[0] - x)/r**3
-#            
-#        return x_a, y_a, z_a
-#    
-#    def calcPos(self, nd):
-#        
-#        '''
-#        Calculate new position using help of function calcAccel
-#        '''
-#        
-#        galaxies = []
-#        accel = [0,0,0]
-#        if nd.children > 0:
-#            
-#            for node in nd.children:
-#                self.calcPos(node)
-#                
-#        else:
-#            x = nd.gals[0].x
-#            y = nd.gals[0].y
-#            z = nd.gals[0].z
-#            
-#            a = self.calcAccel(self.root, x, y, z, nd)
-#            
-#            if a is not None:
-#                accel[0] += a[0]
-#                accel[1] += a[1]
-#                accel[2] += a[2]
-            
+    return galaxies                     
