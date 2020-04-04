@@ -139,7 +139,6 @@ class Tree:
         # calc all node COMs
         self.root.calcCOM()
     
-    
     def galArray(self):
         import numpy as np
         
@@ -409,3 +408,52 @@ def createGalList(gal_array1, gal_array2):
         galaxies.append(galaxy(g2[i,0],g2[i,1],g2[i,2], x_p = g1[i,0], y_p = g1[i,1], z_p = g1[i,2]))
         
     return galaxies                     
+
+# nbody simulation over time
+def nbody(num_run, step, X, Y, Z, file1, file2):
+    
+    '''
+    num_run = number of times to run the simulation
+    step = step size of the simulation in years
+    '''
+    import cluster_dynamics as cd
+    import numpy as np
+    import time
+    start = time.time()
+    
+    # load galaxies in from files
+    gal1 = np.load(file1)
+    gal2 = np.load(file2)
+    
+    # create tree
+    tree = cd.Tree(X, Y, Z, cd.createGalList(gal1,gal2))
+    
+    print(f"This will progress the system by {format(num_run*step,'.3e')} years")
+    
+    # create arrays of galaxy 3D coordinates
+    galaxy1 = np.array([[tree.galaxies[0].x, tree.galaxies[0].y, tree.galaxies[0].z]])
+    galaxy2 = np.array([[tree.galaxies[-1].x, tree.galaxies[-1].y, tree.galaxies[-1].z]])
+    galaxy3 = np.array([[tree.galaxies[225].x, tree.galaxies[225].y, tree.galaxies[225].z]])
+    galaxy4 = np.array([[tree.galaxies[675].x, tree.galaxies[675].y, tree.galaxies[675].z]])
+    
+    
+    n = 0
+    while n < num_run:
+#        print(tree)
+        n += 1
+        # calculat new galaxy positions
+        new_gals = tree.calcPos(step)
+        
+        # append new positions to arrays
+        galaxy1 = np.append(galaxy1, [[new_gals[0].x, new_gals[0].y, new_gals[0].z]], axis = 0)
+        galaxy2 = np.append(galaxy2, [[new_gals[-1].x, new_gals[-1].y, new_gals[-1].z]], axis = 0)
+        galaxy3 = np.append(galaxy3, [[new_gals[225].x, new_gals[225].y, new_gals[225].z]], axis = 0)
+        galaxy4 = np.append(galaxy4, [[new_gals[675].x, new_gals[675].y, new_gals[675].z]], axis = 0)
+        
+        # create new tree
+        tree = cd.Tree((tree.xmin, tree.xmax),(tree.ymin, tree.ymax),(tree.zmin, tree.zmax), new_gals)
+        
+    end = time.time()
+    print((end - start)/3600, 'hours')
+    
+    return galaxy1, galaxy2, galaxy3, galaxy4
