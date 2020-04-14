@@ -413,8 +413,8 @@ def createGalList(gal_array1, gal_array2):
 def nbody(num_run, step, X, Y, Z, file1, file2):
     
     '''
-    num_run = number of times to run the simulation
-    step = step size of the simulation in years
+    Method for evolving the galaxy cluster forward in time.
+
     '''
     import cluster_dynamics as cd
     import numpy as np
@@ -439,7 +439,6 @@ def nbody(num_run, step, X, Y, Z, file1, file2):
     
     n = 0
     while n < num_run:
-#        print(tree)
         n += 1
         # calculat new galaxy positions
         new_gals = tree.calcPos(step)

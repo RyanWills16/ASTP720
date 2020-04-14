@@ -85,7 +85,7 @@ ax.plot(gal1[:,0], gal1[:,1], gal1[:,2], 'o', c = 'gray', ms = 1)
 plt.show()
         
 
-# running simulation
+# running Barnes-Hut simulation
 num_run = 100
 step = 1e7
 X = (0,11)
@@ -98,7 +98,6 @@ g1, g2, g3, g4 = cd.nbody(num_run, step, X, Y, Z, file1, file2)
 
 # write each of the galaxies to a text file for later reference
 # galaxy 1
-
 step_years = str(format(step, '.0e'))
 with open('galaxy1' + step + '.dat', 'w') as f:
     for i in range(len(g1)):
