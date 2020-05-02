@@ -90,6 +90,13 @@ def calc_acceleration(galaxy_list, body, time_step):
         
         # do not calculate forces on yourself
         if i == body:
+            
+            # but update my new position
+            body.x += body.velx * time_step
+            body.y += body.vely * time_step
+            
+            body.x_locations.append(body.x)
+            body.y_locations.append(body.y)
             continue
         
         else:
@@ -157,7 +164,8 @@ def progress_system(galaxy_list,  time_step, num_step):
     print(f"This will progress the system by {format(time_step*num_step, '.3e')} years")
     
     n = 0
-    
+    t = 0
+    time = [0]
     # make a list of all bodies in simulation
     bodies = []
     
@@ -173,38 +181,85 @@ def progress_system(galaxy_list,  time_step, num_step):
                 
     while n < num_step:
         n += 1
+        t += time_step
+        time.append(t)
         
         for i in bodies:
             calc_acceleration(galaxy_list, i, time_step)
             
+    return time
+            
 def plotGal(galaxy):
+    
+    '''
+    plots all particle histories for a single galaxy, recommended only for 
+    use in showing particle orbits, not galaxy movement. 
+    
+    '''
+    
     plt.figure()
-    plt.scatter(t.x, t.y, s = 20, c='black', zorder = 2)
+    plt.scatter(galaxy.x_locations, galaxy.y_locations, s = 20, c='black', zorder = 2)
+    plt.gca().axis('equal')
     plt.axvline(x = 0, c = 'gray', zorder = 0)
     plt.axhline(y = 0, c = 'gray', zorder = 0)
+    plt.xlabel('X (kpc)')
+    plt.ylabel('Y (kpc)')
     for i in galaxy.particles:
         plt.scatter(i.x_locations, i.y_locations, s = 10, c = 'r')
         plt.scatter(i.x_locations[0], i.y_locations[0], s = 10, c = 'black')
         
-def plotInteraction(galaxy_list, index_list):
+def plotInteraction(galaxy_list, index_list, time):
+    '''
+    plot the galaxy and particle positions as a function of time
+    
+    must be 6 instances in time to plot
+
+    '''
     import matplotlib.pyplot as plt
     from matplotlib.ticker import AutoMinorLocator
-    fig, ax = plt.subplots(6,2, sharex = True, sharey = True, wspace = 0, hspace = 0)
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.xaxis.set_minor_locator(AutoMinorLocator())
-    ax.tick_params(which = 'both')
+    fig, ax = plt.subplots(2,3,figsize = (12, 4.5), sharex = True, sharey = True, gridspec_kw = {'wspace':0,'hspace':0})
+    ax[0,0].set_ylabel('Y (kpc)')
+    ax[1,0].set_ylabel('Y (kpc)')
+    ax[1,0].set_xlabel('X (kpc)')
+    ax[1,1].set_xlabel('X (kpc)')
+    ax[1,2].set_xlabel('X (kpc)')
+    plt.tight_layout()
+    
+    figs = [(0,0), (0,1), (0,2), (1,0), (1,1), (1,2)]
+    
+    for ind, i in enumerate(index_list):
+        ax[figs[ind][0],figs[ind][1]].plot([], [], ' ', label = f"{format(time[i],'.3e')}")
+        for k in galaxy_list:
+            ax[figs[ind][0],figs[ind][1]].scatter(k.x_locations[i], k.y_locations[i], s = 24, c = 'black')
+            
+            ax[figs[ind][0],figs[ind][1]].xaxis.set_minor_locator(AutoMinorLocator())
+            ax[figs[ind][0],figs[ind][1]].xaxis.set_minor_locator(AutoMinorLocator())
+            ax[figs[ind][0],figs[ind][1]].tick_params(which = 'both')
+            for l in k.particles:
+                ax[figs[ind][0],figs[ind][1]].scatter(l.x_locations[i],l.y_locations[i], s = 12, c = 'r')
+                ax[figs[ind][0],figs[ind][1]].legend()
         
             
 import matplotlib.pyplot as plt
 
-t = galaxy(1,1, 0, 0, 1e11, name = 'G1')
+gal1 = galaxy(0,0, 50, 300, 1e11, name = 'G1')
+gal1.createParticle(2, 10)
+gal1.createParticle(4, 15)
+gal1.createParticle(6, 20)
 
-t.createParticle(2, 4)
+gal2 = galaxy(8, 8, -20, -250, 1e10)
+gal2.createParticle(1.5, 8)
+gal2.createParticle(2.25, 12)
+gal2.createParticle(3.5, 16)
 
-progress_system([t], 1000, 4000)
+time = progress_system([gal1, gal2], 200, 200000)
 
-plotGal(t)
+plotGal(gal1)
+plotGal(gal2)
 
+plotInteraction([gal1, gal2], [0, 40000, 80000, 120000, 160000,200000], time)
+
+t = gal2.x_locations
 
 
 
