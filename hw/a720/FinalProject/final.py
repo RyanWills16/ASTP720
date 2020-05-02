@@ -238,6 +238,7 @@ def plotGal(galaxy):
     use in showing particle orbits, not galaxy movement. 
     
     '''
+    import matplotlib.pyplot as plt
     
     plt.figure()
     plt.scatter(galaxy.x_locations, galaxy.y_locations, s = 20, c='black', zorder = 2)
@@ -293,9 +294,9 @@ def plotInteraction(galaxy_list, index_list, time):
             for l in k.particles:
                 ax[figs[ind][0],figs[ind][1]].scatter(l.x_locations[i],l.y_locations[i], s = 12, c = 'r')
                 ax[figs[ind][0],figs[ind][1]].legend()
-        
-            
-import matplotlib.pyplot as plt
+
+# Testing Methods
+#
 
 # create first galaxy
 gal1 = galaxy(0,0, 50, 300, 1e11, name = 'G1')
@@ -305,7 +306,7 @@ gal1.createParticle(6, 20)
 
 # create second galaxy
 gal2 = galaxy(8, 8, -20, -250, 1e10)
-gal2.createParticle(1.5, 8)
+gal2.createParticle(1.5, 8, rot = 'clockwise')
 gal2.createParticle(2.25, 12)
 gal2.createParticle(3.5, 16)
 
