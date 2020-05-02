@@ -108,6 +108,8 @@ def calc_acceleration(galaxy_list, body, time_step):
     
     updates positions and velocities for all objects using RK4
     
+    Takes the list of galaxies, and a single body to make calculations on
+    
     '''
     import numpy as np
     
@@ -307,12 +309,13 @@ gal2.createParticle(1.5, 8)
 gal2.createParticle(2.25, 12)
 gal2.createParticle(3.5, 16)
 
-# progress the system forward in time
-time = progress_system([gal1, gal2], 200, 200000)
-
 # show just plots of galaxies and particles
 plotGal(gal1)
 plotGal(gal2)
+
+# progress the system forward in time
+# this takes between 10 - 20 minutes to run depending on number of iterations and the step size.
+time = progress_system([gal1, gal2], 200, 200000)
 
 # plot the system at different times
 plotInteraction([gal1, gal2], [0, 40000, 80000, 120000, 160000,200000], time)
