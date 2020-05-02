@@ -7,7 +7,9 @@ Created on Sun Apr 12 22:04:14 2020
 
 import numpy as np
 import matplotlib.pyplot as plt
-
+'''
+working directory must be same as the one that contains the cepheid data
+'''
 # loading in relevant columns from the data file
 data = np.genfromtxt('cepheid_data.txt', delimiter = ',', skip_header = 1, usecols = (1,2,3,7,8))
 
@@ -22,11 +24,12 @@ z = data[:,4]
 def cmodel(x, z, a0, a1, a2):
     return a0 + a1*x + a2*z
 
+# creating design matrix, one column is the constant, one is the logperiod values, the last is the metallicity values
 X = np.zeros([len(M), 3])
 for i in range(len(M)):
-    X[i,0] = 1
-    X[i,1] = P[i]
-    X[i,2] = data[i,4]
+    X[i,0] = 1 # constant for the alpha offset
+    X[i,1] = P[i] # log(period) data points
+    X[i,2] = data[i,4] # metallicity data points
     
 # matrix math for parameter estimates
 par = (np.linalg.inv((np.transpose(X) @ X))) @ (np.transpose(X) @ M)
@@ -40,7 +43,7 @@ z_mod = np.array([z[301],z[205]])
 y_mod = cmodel(x_mod, z_mod, par[0], par[1], par[2])
 
 
-plt.figure(figsize = (5.5,4))
+plt.figure(figsize = (6.5,4.5))
 plt.tight_layout()
 plt.scatter(P,M, s = 4, c = 'b')
 plt.plot(x_mod,y_mod,c='r',label = 'Best Fit:')
@@ -48,11 +51,13 @@ plt.plot(x_mod,y_mod,c='r',label = 'Best Fit:')
 plt.plot([],[],' ', label = rf"$\alpha$ = {format(par[0],'0.3f')} $\pm$ {format(unc[0,0],'0.3f')}")
 plt.plot([],[], ' ', label = rf"$\beta$ = {format(par[1],'0.3f')} $\pm$ {format(unc[1,1],'0.3f')}")
 plt.plot([],[], ' ', label = rf"$\gamma$ = {format(par[2],'0.3f')} $\pm$ {format(unc[2,2],'0.3f')}")
-plt.ylabel('Absolute Magnitude')
-plt.xlabel('$log_{10}(Period) (log_{10}(days))$')
-plt.title("Without Weighting")
+plt.ylabel('Absolute Magnitude', fontsize = 14)
+plt.xlabel('$log_{10}(Period)\,(log_{10}(days))$', fontsize = 14)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
+plt.title("Without Weighting", fontsize = 14)
 plt.tight_layout()
-plt.legend()
+plt.legend(fontsize = 14)
 
 #uncertainty
 u = 0.1 # magnitudes
@@ -70,7 +75,7 @@ x_mod2 = np.array([np.min(P),np.max(P)])
 z_mod2 = np.array([z[301],z[205]])
 y_mod2 = cmodel(x_mod2, z_mod2, par2[0], par2[1], par2[2])
 
-plt.figure(figsize = (5.5,4))
+plt.figure(figsize = (6.5,4.5))
 plt.tight_layout()
 plt.scatter(P,M, s = 4, c = 'b')
 plt.plot(x_mod2,y_mod2,c='r',label = 'Best Fit:')
@@ -78,8 +83,10 @@ plt.plot(x_mod2,y_mod2,c='r',label = 'Best Fit:')
 plt.plot([],[],' ', label = rf"$\alpha$ = {format(par2[0],'0.3f')} $\pm$ {format(unc2[0,0],'0.3f')}")
 plt.plot([],[], ' ', label = rf"$\beta$ = {format(par2[1],'0.3f')} $\pm$ {format(unc2[1,1],'0.3f')}")
 plt.plot([],[], ' ', label = rf"$\gamma$ = {format(par2[2],'0.3f')} $\pm$ {format(unc2[2,2],'0.3f')}")
-plt.ylabel('Absolute Magnitude')
-plt.xlabel('$log_{10}(Period) (log_{10}(days))$')
-plt.title("With Weighting")
+plt.ylabel('Absolute Magnitude', fontsize = 14)
+plt.xlabel('$log_{10}(Period) \, (log_{10}(days))$', fontsize = 14)
+plt.title("With Weighting", fontsize = 14)
+plt.xticks(fontsize = 14)
+plt.yticks(fontsize = 14)
 plt.tight_layout()
-plt.legend()
+plt.legend(fontsize = 14)
