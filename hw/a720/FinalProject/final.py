@@ -7,6 +7,12 @@ Created on Sun Apr 26 00:48:28 2020
 
 class particle:
     
+    '''
+    
+    particle object
+    
+    '''
+    
     def __init__(self, x, y, vx, vy):
         
         # position in kpc
@@ -25,6 +31,12 @@ class particle:
         
 class galaxy:
     
+    '''
+    
+    Galaxy object
+    
+    '''
+    
     def __init__(self, x, y, vx, vy, Mass, name = ''):
         
         # position in kpc
@@ -32,14 +44,16 @@ class galaxy:
         self.y = y
         
         # velocity in kpc/s
-        self.velx = vx*(1/3.086e16)
+        self.velx = vx*(1/3.086e16) # convert km/s to kpc/s
         self.vely = vy*(1/3.086e16)
         
         # Mass in solar Masses
         self.Mass = Mass
         
+        # name of galaxy
         self.name = name
         
+        # particles in galaxy
         self.particles = []
         
         # position history
@@ -47,6 +61,20 @@ class galaxy:
         self.y_locations = [self.y]
     
     def createParticle(self, R, num, rot = 'counter'):
+        
+        '''
+        
+        Method for creating particles in a galaxy
+        
+        R:
+            Radius in kpc
+            
+        num:
+            number of particles to generate
+            
+        rot: which way the particles should orbit
+        
+        '''
         import numpy as np
         
         G = 4.513e-39 # (kpc^3) / (s^2 solar mass)
@@ -75,6 +103,12 @@ class galaxy:
         return
 
 def calc_acceleration(galaxy_list, body, time_step):
+    
+    '''
+    
+    updates positions and velocities for all objects using RK4
+    
+    '''
     import numpy as np
     
     # convert time step to seconds
@@ -91,10 +125,11 @@ def calc_acceleration(galaxy_list, body, time_step):
         # do not calculate forces on yourself
         if i == body:
             
-            # but update my new position
+            # but still update my new position
             body.x += body.velx * time_step
             body.y += body.vely * time_step
             
+            # update particle history
             body.x_locations.append(body.x)
             body.y_locations.append(body.y)
             continue
@@ -161,6 +196,11 @@ def calc_acceleration(galaxy_list, body, time_step):
 
 def progress_system(galaxy_list,  time_step, num_step):
     
+    '''
+    Builds list of all particles and galaxies and then evolves them forwards 
+    in time. Also builds time array.
+    '''
+    
     print(f"This will progress the system by {format(time_step*num_step, '.3e')} years")
     
     n = 0
@@ -209,10 +249,23 @@ def plotGal(galaxy):
         plt.scatter(i.x_locations[0], i.y_locations[0], s = 10, c = 'black')
         
 def plotInteraction(galaxy_list, index_list, time):
+    
     '''
-    plot the galaxy and particle positions as a function of time
+    galaxy_list: 
+        List of galaxies to plot along with their particles
+    
+    index_list: 
+        The indicies of the times you want to plot, must be a list of 
+    six indicies corresponding to inidicies in time
+    
+    time: time array as put out by progress_system
+    
+    Output:
+        plot the galaxy and particle positions as a function of time in 
+        6 subplots
     
     must be 6 instances in time to plot
+    
 
     '''
     import matplotlib.pyplot as plt
@@ -242,25 +295,24 @@ def plotInteraction(galaxy_list, index_list, time):
             
 import matplotlib.pyplot as plt
 
+# create first galaxy
 gal1 = galaxy(0,0, 50, 300, 1e11, name = 'G1')
 gal1.createParticle(2, 10)
 gal1.createParticle(4, 15)
 gal1.createParticle(6, 20)
 
+# create second galaxy
 gal2 = galaxy(8, 8, -20, -250, 1e10)
 gal2.createParticle(1.5, 8)
 gal2.createParticle(2.25, 12)
 gal2.createParticle(3.5, 16)
 
+# progress the system forward in time
 time = progress_system([gal1, gal2], 200, 200000)
 
+# show just plots of galaxies and particles
 plotGal(gal1)
 plotGal(gal2)
 
+# plot the system at different times
 plotInteraction([gal1, gal2], [0, 40000, 80000, 120000, 160000,200000], time)
-
-t = gal2.x_locations
-
-
-
-    
